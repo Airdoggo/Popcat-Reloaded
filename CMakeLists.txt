@@ -12,7 +12,7 @@ endif()
 
 if (WIN32)
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
 else()
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g3 -fsanitize=address")
@@ -31,3 +31,24 @@ target_link_libraries(popcat
     ai
 )
 
+# Tests
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    enable_testing()
+    message("Running perft tests.")
+
+    find_package(
+        Python3
+        REQUIRED
+        COMPONENTS Interpreter
+    )
+
+    add_custom_target(perft
+        COMMAND python
+                "${CMAKE_SOURCE_DIR}/tests/tools/run_perft.py"
+                "${CMAKE_SOURCE_DIR}/tests/perft/"
+                "${CMAKE_CURRENT_BINARY_DIR}/Debug/popcat.exe"
+                False
+                False
+        DEPENDS popcat
+    )
+endif()
