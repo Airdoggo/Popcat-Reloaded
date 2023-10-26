@@ -12,7 +12,7 @@ namespace board
         : Chessboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
     {}
 
-    Chessboard::Chessboard(std::string fen_string)
+    Chessboard::Chessboard(const std::string &fen_string)
     {
         std::stringstream fen_stream(fen_string);
         std::string board, next_color, castling, en_passant;
@@ -49,6 +49,36 @@ namespace board
         }
 
         _en_passant = 1ULL << (en_passant[0] - 'a' + (en_passant[1] - '1') * 8);
+    }
+
+    void Chessboard::generate_legal_moves(std::vector<Move> &moves)
+    {}
+
+    void Chessboard::do_move(const Move &move)
+    {
+        if (move.type <= MoveType::PROMOTION_KNIGHT)
+            return; // handle_promotion(move);
+        else if (move.type <= MoveType::CASTLING_KING)
+            return; // handle_castling(move);
+        else
+        {
+            Bitboard *friend_pieces = _white_turn ? &_whites : &_blacks;
+            Bitboard *enemy_pieces = _white_turn ? &_blacks : &_whites;
+
+            *move.piece_board ^= move.bitboard_move;
+            *friend_pieces ^= move.bitboard_move;
+
+            if (move.target_board != nullptr)
+            {
+                // check_enemy_castling(move);
+                Bitboard enemy = *(move.piece_board) & move.bitboard_move;
+
+                *move.target_board ^= enemy;
+                *enemy_pieces ^= enemy;
+            }
+        }
+
+        // en_passant_ ^= move.en_passant;
     }
 
     void Chessboard::pretty_print() const
