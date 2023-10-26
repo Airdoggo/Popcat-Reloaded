@@ -1,8 +1,11 @@
 #pragma once
 
-typedef unsigned long long Bitboard;
-
 #include <string>
+#include <vector>
+
+#include "move.hh"
+
+typedef unsigned long long Bitboard;
 
 namespace board
 {
@@ -10,10 +13,14 @@ namespace board
     {
     public:
         Chessboard();
-        Chessboard(std::string fen_string);
+        Chessboard(const std::string &fen_string);
 
         void pretty_print() const;
         void print_bitboard(Bitboard bitboard) const;
+
+        void generate_legal_moves(std::vector<Move> &moves);
+        void do_move(const Move &move);
+        void switch_turn();
 
     private:
         unsigned _turn = 0;
@@ -45,3 +52,5 @@ namespace board
         Bitboard _en_passant = 0;
     };
 } // namespace board
+
+#include "chessboard.hxx"
