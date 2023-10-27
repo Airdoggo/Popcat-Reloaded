@@ -1,9 +1,10 @@
 #pragma once
 
+#include <iostream>
 #include <string>
 #include <vector>
 
-#include "move.hh"
+#include "moves/move.hh"
 
 typedef unsigned long long Bitboard;
 
@@ -21,6 +22,8 @@ namespace board
         void generate_legal_moves(std::vector<Move> &moves);
         void do_move(const Move &move);
         void switch_turn();
+
+        Bitboard *get_board_at_position(Bitboard position, bool is_white);
 
     private:
         unsigned _turn = 0;
@@ -50,6 +53,14 @@ namespace board
         Bitboard _black_rooks = 0;
 
         Bitboard _en_passant = 0;
+
+        // Defined in '/moves/<piece>_moves.cc
+        void generate_pawn_moves(std::vector<Move> &moves);
+        void generate_king_moves(std::vector<Move> &moves);
+        void generate_bishop_moves(std::vector<Move> &moves);
+        void generate_rook_moves(std::vector<Move> &moves);
+        void generate_queen_moves(std::vector<Move> &moves);
+        void generate_knight_moves(std::vector<Move> &moves);
     };
 } // namespace board
 

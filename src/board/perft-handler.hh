@@ -12,8 +12,6 @@ namespace board
         void compute_perft(const std::string &perft_path);
 
     private:
-        Chessboard _board;
-
-        size_t run_perft(unsigned depth);
+        size_t run_perft(Chessboard &board, unsigned depth);
     };
 } // namespace board

@@ -8,8 +8,17 @@
 
 int main(int argc, char *argv[])
 {
-    board::PerftHandler perft_handler;
-    perft_handler.compute_perft("../../tests/perft/base/base_depth-1.perft");
+    if (argc == 1)
+    {
+        board::PerftHandler perft_handler;
+        perft_handler.compute_perft("../../tests/perft/base/base_depth-5.perft");
+    }
+    else if (std::string(argv[1]) == "--perft")
+    {
+        board::PerftHandler perft_handler;
+        perft_handler.compute_perft(argv[2]);
+    }
+
     // options::tmp();
     // board::tmp();
     // ai::tmp();
