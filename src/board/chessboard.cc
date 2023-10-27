@@ -25,18 +25,26 @@ namespace board
             { 'B', &_white_bishops }, { 'Q', &_white_queen },   { 'K', &_white_king },    { 'P', &_white_pawns }
         };
 
-        int index = 63;
+        int file = 1;
+        int rank = 8;
 
         for (char c : board)
         {
             if (c == '/')
+            {
+                file = 1;
+                rank--;
                 continue;
+            }
 
             if (c >= '1' && c <= '8')
-                index -= c - '0';
+                file += c - '0';
             else
-                (*char_to_bitboard[c]) |= (1ULL << index--);
+                (*char_to_bitboard[c]) |= (1ULL << ((rank - 1) * 8 + (file++ - 1)));
         }
+
+        _whites = _white_pawns | _white_rooks | _white_knights | _white_bishops | _white_queen | _white_king;
+        _blacks = _black_pawns | _black_rooks | _black_knights | _black_bishops | _black_queen | _black_king;
 
         _white_turn = next_color[0] == 'w';
 
@@ -48,11 +56,19 @@ namespace board
             _black_queen_castling = castling.find('q') != std::string::npos;
         }
 
-        _en_passant = 1ULL << (en_passant[0] - 'a' + (en_passant[1] - '1') * 8);
+        if (en_passant != "-")
+            _en_passant = 1ULL << (en_passant[0] - 'a' + (en_passant[1] - '1') * 8);
     }
 
     void Chessboard::generate_legal_moves(std::vector<Move> &moves)
-    {}
+    {
+        generate_pawn_moves(moves);
+        generate_king_moves(moves);
+        generate_bishop_moves(moves);
+        generate_rook_moves(moves);
+        generate_queen_moves(moves);
+        generate_knight_moves(moves);
+    }
 
     void Chessboard::do_move(const Move &move)
     {
@@ -71,7 +87,10 @@ namespace board
             if (move.target_board != nullptr)
             {
                 // check_enemy_castling(move);
-                Bitboard enemy = *(move.piece_board) & move.bitboard_move;
+
+                Bitboard enemy =
+                    (*move.piece_board) & (*move.target_board) ? *(move.piece_board) : ~(*move.piece_board);
+                enemy &= move.bitboard_move;
 
                 *move.target_board ^= enemy;
                 *enemy_pieces ^= enemy;
@@ -79,6 +98,40 @@ namespace board
         }
 
         // en_passant_ ^= move.en_passant;
+    }
+
+    Bitboard *Chessboard::get_board_at_position(Bitboard position, bool is_white)
+    {
+        if (is_white)
+        {
+            if (position & _white_pawns)
+                return &_white_pawns;
+            else if (position & _white_rooks)
+                return &_white_rooks;
+            else if (position & _white_knights)
+                return &_white_knights;
+            else if (position & _white_bishops)
+                return &_white_bishops;
+            else if (position & _white_queen)
+                return &_white_queen;
+            else
+                return &_white_king;
+        }
+        else
+        {
+            if (position & _black_pawns)
+                return &_black_pawns;
+            else if (position & _black_rooks)
+                return &_black_rooks;
+            else if (position & _black_knights)
+                return &_black_knights;
+            else if (position & _black_bishops)
+                return &_black_bishops;
+            else if (position & _black_queen)
+                return &_black_queen;
+            else
+                return &_black_queen;
+        }
     }
 
     void Chessboard::pretty_print() const
@@ -96,7 +149,7 @@ namespace board
             while (p_board)
             {
                 unsigned long long index = __lzcnt64(p_board);
-                board[index] = i + 1;
+                board[index / 8 * 8 + 7 - index % 8] = i + 1;
                 p_board ^= (1ULL << (63 - index));
             }
         }
@@ -121,8 +174,8 @@ namespace board
                 std::cout << (bitboard & (1ULL << ((7 - i) * 8 + j)) ? 1 : 0) << " ";
             }
 
-            std::cout << "\n";
+            std::cout << std::endl;
         }
+        std::cout << std::endl;
     }
-
 } // namespace board

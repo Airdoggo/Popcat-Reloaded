@@ -4,7 +4,7 @@
 #include <iostream>
 #include <vector>
 
-#include "move.hh"
+#include "moves/move.hh"
 
 namespace board
 {
@@ -18,14 +18,14 @@ namespace board
         unsigned depth = perft_string.back() - '0';
         perft_string.pop_back();
 
-        _board = Chessboard(perft_string);
-        std::cout << run_perft(depth) << std::endl;
+        Chessboard board = Chessboard(perft_string);
+        std::cout << run_perft(board, depth) << std::endl;
     }
 
-    size_t PerftHandler::run_perft(unsigned depth)
+    size_t PerftHandler::run_perft(Chessboard &board, unsigned depth)
     {
         std::vector<Move> moves;
-        _board.generate_legal_moves(moves);
+        board.generate_legal_moves(moves);
         if (depth <= 1)
             return moves.size();
 
@@ -33,11 +33,13 @@ namespace board
 
         for (const Move &move : moves)
         {
-            _board.do_move(move);
-            _board.switch_turn();
-            nb_moves += run_perft(depth - 1);
-            _board.switch_turn();
-            _board.do_move(move);
+            board.do_move(move);
+            board.switch_turn();
+
+            nb_moves += run_perft(board, depth - 1);
+
+            board.switch_turn();
+            board.do_move(move);
         }
 
         return nb_moves;
