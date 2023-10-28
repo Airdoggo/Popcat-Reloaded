@@ -64,9 +64,9 @@ namespace board
     {
         generate_pawn_moves(moves);
         generate_king_moves(moves);
-        generate_bishop_moves(moves);
-        generate_rook_moves(moves);
-        generate_queen_moves(moves);
+        generate_sliding_moves(moves, PieceType::ROOK);
+        generate_sliding_moves(moves, PieceType::BISHOP);
+        generate_sliding_moves(moves, PieceType::QUEEN);
         generate_knight_moves(moves);
     }
 
@@ -141,16 +141,16 @@ namespace board
         Bitboard bitboards[12] = { _white_pawns,   _white_king,    _white_queen,   _white_rooks,
                                    _white_bishops, _white_knights, _black_pawns,   _black_king,
                                    _black_queen,   _black_rooks,   _black_bishops, _black_knights };
+        unsigned long index;
 
         for (unsigned i = 0; i < 12; i++)
         {
             Bitboard p_board = bitboards[i];
 
-            while (p_board)
+            while (_BitScanForward64(&index, p_board))
             {
-                unsigned long long index = __lzcnt64(p_board);
-                board[index / 8 * 8 + 7 - index % 8] = i + 1;
-                p_board ^= (1ULL << (63 - index));
+                board[(7 - index / 8) * 8 + index % 8] = i + 1;
+                p_board ^= (1ULL << index);
             }
         }
 

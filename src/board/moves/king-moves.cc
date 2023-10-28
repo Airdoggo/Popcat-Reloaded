@@ -9,14 +9,15 @@ namespace board
         Bitboard movable = _white_turn ? ~_whites : ~_blacks;
         Bitboard enemies = _white_turn ? _blacks : _whites;
 
-        unsigned long long index = __lzcnt64(*friendly_king);
-        Bitboard king_position = 1ULL << (63 - index);
-        Bitboard moves_table = Tables::king[index] & movable;
+        unsigned long index;
+        _BitScanForward64(&index, *friendly_king);
 
-        while (moves_table)
+        Bitboard king_position = 1ULL << index;
+        Bitboard moves_table = _tables.king[index] & movable;
+
+        while (_BitScanForward64(&index, moves_table))
         {
-            unsigned long long index = __lzcnt64(moves_table);
-            Bitboard move = 1ULL << (63 - index);
+            Bitboard move = 1ULL << index;
 
             Bitboard *enemy = (move & enemies) ? get_board_at_position(move, !_white_turn) : nullptr;
 

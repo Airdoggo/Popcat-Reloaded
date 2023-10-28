@@ -5,6 +5,8 @@
 #include <vector>
 
 #include "moves/move.hh"
+#include "moves/piece-type.hh"
+#include "moves/tables.hh"
 
 typedef unsigned long long Bitboard;
 
@@ -26,6 +28,8 @@ namespace board
         Bitboard *get_board_at_position(Bitboard position, bool is_white);
 
     private:
+        Tables _tables;
+
         unsigned _turn = 0;
         unsigned _halfmoves = 0;
 
@@ -57,10 +61,8 @@ namespace board
         // Defined in '/moves/<piece>_moves.cc
         void generate_pawn_moves(std::vector<Move> &moves);
         void generate_king_moves(std::vector<Move> &moves);
-        void generate_bishop_moves(std::vector<Move> &moves);
-        void generate_rook_moves(std::vector<Move> &moves);
-        void generate_queen_moves(std::vector<Move> &moves);
         void generate_knight_moves(std::vector<Move> &moves);
+        void generate_sliding_moves(std::vector<Move> &moves, PieceType type);
     };
 } // namespace board
 
