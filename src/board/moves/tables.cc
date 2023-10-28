@@ -94,7 +94,7 @@ namespace board
 
     static Bitboard generate_bishop_attack(unsigned bishop_index, Bitboard blockers)
     {
-        Bitboard result, position = 0x0;
+        Bitboard result = 0x0, position = 0x0;
         unsigned rank = bishop_index / 8;
         unsigned file = bishop_index % 8;
 
@@ -130,7 +130,7 @@ namespace board
             result |= position;
         }
 
-        return result;
+        return 1;
     }
 
     void Tables::generate_bishop_table()
