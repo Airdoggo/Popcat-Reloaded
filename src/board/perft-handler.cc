@@ -26,6 +26,7 @@ namespace board
     {
         std::vector<Move> moves;
         board.generate_legal_moves(moves);
+
         if (depth <= 1)
             return moves.size();
 

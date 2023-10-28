@@ -13,11 +13,11 @@ namespace board
                                            bool white_turn)
     {
         Bitboard promotion_rank = white_turn ? RANK8 : RANK1;
+        unsigned long index;
 
-        while (moves_bitboard)
+        while (_BitScanForward64(&index, moves_bitboard))
         {
-            unsigned long long index = __lzcnt64(moves_bitboard);
-            Bitboard move = 1ULL << (63 - index);
+            Bitboard move = 1ULL << index;
             moves_bitboard ^= move;
             move |= white_turn ? (move >> 8) : (move << 8);
 
@@ -39,11 +39,11 @@ namespace board
                                            Bitboard enemy_pawns, bool white_turn)
     {
         Bitboard possible_en_passant_pawns = enemy_pawns & (white_turn ? RANK4 : RANK5);
+        unsigned long index;
 
-        while (moves_bitboard)
+        while (_BitScanForward64(&index, moves_bitboard))
         {
-            unsigned long long index = __lzcnt64(moves_bitboard);
-            Bitboard move = 1ULL << (63 - index);
+            Bitboard move = 1ULL << index;
             moves_bitboard ^= move;
             move |= white_turn ? (move >> 16) : (move << 16);
 
@@ -59,11 +59,11 @@ namespace board
                                  Bitboard *piece_board, bool white_turn, bool east_attacks)
     {
         unsigned offset = (white_turn ^ east_attacks) ? 7 : 9;
+        unsigned long index;
 
-        while (moves_bitboard)
+        while (_BitScanForward64(&index, moves_bitboard))
         {
-            unsigned long long index = __lzcnt64(moves_bitboard);
-            Bitboard move = 1ULL << (63 - index);
+            Bitboard move = 1ULL << index;
             moves_bitboard ^= move;
             move |= white_turn ? (move >> offset) : (move << offset);
 
