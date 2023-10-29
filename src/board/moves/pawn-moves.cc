@@ -17,12 +17,15 @@ namespace board
 
         while (_BitScanForward64(&index, moves_bitboard))
         {
-            Bitboard position = 1ULL << index;
-            Bitboard move = white_turn ? (position >> 8) : (position << 8);
+            Bitboard move = 1ULL << index;
+            Bitboard position = white_turn ? (move >> 8) : (move << 8);
+
+            moves_bitboard ^= move;
 
             if (board->validate_move(piece_board, nullptr, position, move))
             {
                 move |= position;
+
                 if (move & promotion_rank)
                 {
                     moves.push_back({ move, piece_board, nullptr, white_turn, MoveType::PROMOTION_QUEEN });
@@ -35,8 +38,6 @@ namespace board
                     moves.push_back({ move, piece_board, nullptr, white_turn, MoveType::NONE });
                 }
             }
-
-            moves_bitboard ^= position;
         }
     }
 
@@ -48,8 +49,8 @@ namespace board
 
         while (_BitScanForward64(&index, moves_bitboard))
         {
-            Bitboard position = 1ULL << index;
-            Bitboard move = white_turn ? (position >> 16) : (position << 16);
+            Bitboard move = 1ULL << index;
+            Bitboard position = white_turn ? (move >> 16) : (move << 16);
 
             MoveType type =
                 (possible_en_passant_pawns && (((position >> 1) | (position << 1)) & possible_en_passant_pawns))
@@ -59,7 +60,7 @@ namespace board
             if (board->validate_move(piece_board, nullptr, position, move))
                 moves.push_back({ position | move, piece_board, nullptr, white_turn, type });
 
-            moves_bitboard ^= position;
+            moves_bitboard ^= move;
         }
     }
 
@@ -71,14 +72,14 @@ namespace board
 
         while (_BitScanForward64(&index, moves_bitboard))
         {
-            Bitboard position = 1ULL << index;
-            Bitboard move = white_turn ? (position >> offset) : (position << offset);
+            Bitboard move = 1ULL << index;
+            Bitboard position = white_turn ? (move >> offset) : (move << offset);
 
             if (board->validate_move(piece_board, nullptr, position, move))
                 moves.push_back({ position | move, piece_board, board->get_board_at_position(move, !white_turn),
                                   white_turn, MoveType::NONE });
 
-            moves_bitboard ^= position;
+            moves_bitboard ^= move;
         }
     }
 
