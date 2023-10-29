@@ -13,7 +13,7 @@ namespace board
         _BitScanForward64(&index, *friendly_king);
 
         Bitboard king_position = 1ULL << index;
-        Bitboard moves_table = _tables.king[index] & movable;
+        Bitboard moves_table = tables.king[index] & movable;
 
         while (_BitScanForward64(&index, moves_table))
         {
@@ -21,7 +21,8 @@ namespace board
 
             Bitboard *enemy = (move & enemies) ? get_board_at_position(move, !_white_turn) : nullptr;
 
-            moves.push_back({ move | king_position, friendly_king, enemy, _white_turn, MoveType::NONE });
+            if (validate_move(friendly_king, enemy, king_position, move))
+                moves.push_back({ move | king_position, friendly_king, enemy, _white_turn, MoveType::NONE });
 
             moves_table ^= move;
         }

@@ -15,6 +15,8 @@ namespace board
     class Chessboard final
     {
     public:
+        Tables tables;
+
         Chessboard();
         Chessboard(const std::string &fen_string);
 
@@ -27,9 +29,9 @@ namespace board
 
         Bitboard *get_board_at_position(Bitboard position, bool is_white);
 
-    private:
-        Tables _tables;
+        bool validate_move(Bitboard *moving_piece, Bitboard *target, Bitboard move_start, Bitboard move_end);
 
+    private:
         unsigned _turn = 0;
         unsigned _halfmoves = 0;
 
@@ -63,6 +65,8 @@ namespace board
         void generate_king_moves(std::vector<Move> &moves);
         void generate_knight_moves(std::vector<Move> &moves);
         void generate_sliding_moves(std::vector<Move> &moves, PieceType type);
+
+        Bitboard get_attack_board();
     };
 } // namespace board
 
