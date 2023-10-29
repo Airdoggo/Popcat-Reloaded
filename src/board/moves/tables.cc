@@ -130,7 +130,7 @@ namespace board
             result |= position;
         }
 
-        return 1;
+        return result;
     }
 
     void Tables::generate_bishop_table()
