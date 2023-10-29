@@ -15,14 +15,15 @@ namespace board
         while (_BitScanForward64(&index, knights))
         {
             Bitboard knight_position = 1ULL << index;
-            Bitboard moves_table = _tables.knight[index] & movable;
+            Bitboard moves_table = tables.knight[index] & movable;
 
             while (_BitScanForward64(&index, moves_table))
             {
                 Bitboard move = 1ULL << index;
                 Bitboard *enemy = (move & enemies) ? get_board_at_position(move, !_white_turn) : nullptr;
 
-                moves.push_back({ move | knight_position, friendly_knights, enemy, _white_turn, MoveType::NONE });
+                if (validate_move(friendly_knights, enemy, knight_position, move))
+                    moves.push_back({ move | knight_position, friendly_knights, enemy, _white_turn, MoveType::NONE });
 
                 moves_table ^= move;
             }

@@ -33,20 +33,20 @@ namespace board
 
             if (type & ROOK)
             {
-                Bitboard masked_blockers = _tables.rook_masks[index] & blockers;
-                Bitboard magic_number = _tables.rook_magic_number[index];
-                Bitboard key = ((masked_blockers * magic_number) >> (64 - _tables.rook_magic_bits[index]));
+                Bitboard masked_blockers = tables.rook_masks[index] & blockers;
+                Bitboard magic_number = tables.rook_magic_number[index];
+                Bitboard key = ((masked_blockers * magic_number) >> (64 - tables.rook_magic_bits[index]));
 
-                moves_table |= _tables.rook_attack_table[index][key];
+                moves_table |= tables.rook_attack_table[index][key];
             }
 
             if (type & BISHOP)
             {
-                Bitboard masked_blockers = _tables.bishop_masks[index] & blockers;
-                Bitboard magic_number = _tables.bishop_magic_number[index];
-                Bitboard key = ((masked_blockers * magic_number) >> (64 - _tables.bishop_magic_bits[index]));
+                Bitboard masked_blockers = tables.bishop_masks[index] & blockers;
+                Bitboard magic_number = tables.bishop_magic_number[index];
+                Bitboard key = ((masked_blockers * magic_number) >> (64 - tables.bishop_magic_bits[index]));
 
-                moves_table |= _tables.bishop_attack_table[index][key];
+                moves_table |= tables.bishop_attack_table[index][key];
             }
 
             moves_table &= movable;
@@ -56,7 +56,8 @@ namespace board
                 Bitboard move = 1ULL << index;
                 Bitboard *enemy = (move & enemies) ? get_board_at_position(move, !_white_turn) : nullptr;
 
-                moves.push_back({ move | position, friendly_pieces, enemy, _white_turn, MoveType::NONE });
+                if (validate_move(friendly_pieces, enemy, position, move))
+                    moves.push_back({ move | position, friendly_pieces, enemy, _white_turn, MoveType::NONE });
 
                 moves_table ^= move;
             }
