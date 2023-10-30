@@ -43,19 +43,23 @@ namespace board
 
             if (castling & QUEEN_CASTLING)
             {
-                type = static_cast<MoveType>(type | MoveType::BREAK_CASTLING_QUEEN);
-
-                if (!(castling_rooks & ROOKS_QUEEN_CASTLING_START_POSITION)) // Enemy broke queen castling
+                if (!(castling_rooks & ROOKS_QUEEN_CASTLING_START_POSITION)) // Enemy already broke queen castling
+                {
                     _offset_castling_break =
                         static_cast<MoveType>(_offset_castling_break | MoveType::BREAK_CASTLING_QUEEN);
+                }
+                else
+                    type = static_cast<MoveType>(type | MoveType::BREAK_CASTLING_QUEEN);
             }
             if (castling & KING_CASTLING)
             {
-                type = static_cast<MoveType>(type | MoveType::BREAK_CASTLING_KING);
-
-                if (!(castling_rooks & ROOKS_KING_CASTLING_START_POSITION)) // Enemy broke king castling
+                if (!(castling_rooks & ROOKS_KING_CASTLING_START_POSITION)) // Enemy already broke king castling
+                {
                     _offset_castling_break =
                         static_cast<MoveType>(_offset_castling_break | MoveType::BREAK_CASTLING_KING);
+                }
+                else
+                    type = static_cast<MoveType>(type | MoveType::BREAK_CASTLING_KING);
             }
         }
 
