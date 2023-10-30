@@ -76,7 +76,7 @@ namespace board
                 Bitboard *enemy = (move & enemies) ? get_board_at_position(move, !_white_turn) : nullptr;
 
                 if (validate_move(friendly_pieces, enemy, position, move))
-                    moves.push_back({ move | position, friendly_pieces, enemy, _white_turn, move_type });
+                    moves.push_back({ move | position, friendly_pieces, enemy, _en_passant, _white_turn, move_type });
 
                 moves_table ^= move;
             }

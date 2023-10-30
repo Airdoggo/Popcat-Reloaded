@@ -23,7 +23,8 @@ namespace board
                 Bitboard *enemy = (move & enemies) ? get_board_at_position(move, !_white_turn) : nullptr;
 
                 if (validate_move(friendly_knights, enemy, knight_position, move))
-                    moves.push_back({ move | knight_position, friendly_knights, enemy, _white_turn, MoveType::NONE });
+                    moves.push_back(
+                        { move | knight_position, friendly_knights, enemy, _en_passant, _white_turn, MoveType::NONE });
 
                 moves_table ^= move;
             }
