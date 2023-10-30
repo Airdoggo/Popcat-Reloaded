@@ -90,7 +90,8 @@ namespace board
             if (!(castling_queenside & blockers) && type & MoveType::BREAK_CASTLING_QUEEN)
             {
                 Bitboard castling_check = _white_turn ? WHITE_QUEEN_CASTLING_CHECK : BLACK_QUEEN_CASTLING_CHECK;
-                if (!(castling_queenside & attack_board))
+
+                if (!(castling_check & attack_board))
                 {
                     moves.push_back({ (*friendly_king) >> 2 | *friendly_king, friendly_king, nullptr, _en_passant,
                                       _white_turn, static_cast<MoveType>(MoveType::CASTLING_QUEEN | type) });
