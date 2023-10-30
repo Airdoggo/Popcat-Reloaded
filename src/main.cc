@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
     if (argc == 1)
     {
         board::PerftHandler perft_handler;
-        perft_handler.compute_perft("../../tests/perft/checks/en_passant_check_depth-1.perft");
+        perft_handler.compute_perft("../../tests/perft/checks/en_passant_check_depth-3.perft", false);
     }
     else if (std::string(argv[1]) == "--perft")
     {
