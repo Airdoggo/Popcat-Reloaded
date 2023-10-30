@@ -76,7 +76,20 @@ namespace board
     void Chessboard::do_move(const Move &move)
     {
         if (move.type <= MoveType::PROMOTION_KNIGHT)
-            return; // handle_promotion(move);
+        {
+            // Absolutely horrible, to change ASAP
+            Bitboard *promotion_board = move.type == MoveType::PROMOTION_KNIGHT
+                ? (move.is_white ? &_white_knights : &_black_knights)
+                : move.type == MoveType::PROMOTION_BISHOP ? (move.is_white ? &_white_bishops : &_black_bishops)
+                : move.type == MoveType::PROMOTION_ROOK   ? (move.is_white ? &_white_rooks : &_black_rooks)
+                                                          : (move.is_white ? &_white_queen : &_black_queen);
+
+            Bitboard move_start = ((*move.piece_board) | ~(*promotion_board)) & move.bitboard_move;
+            Bitboard move_end = move.bitboard_move ^ move_start;
+
+            (*move.piece_board) ^= move_start;
+            (*promotion_board) ^= move_end;
+        }
         else if (move.type <= MoveType::CASTLING_KING)
             return; // handle_castling(move);
         else
