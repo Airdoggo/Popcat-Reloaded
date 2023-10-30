@@ -8,6 +8,8 @@
 
 namespace board
 {
+    static constexpr Bitboard RANK4OR5 = 0x000000FFFF000000;
+
     Chessboard::Chessboard()
         : Chessboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
     {}
@@ -89,15 +91,27 @@ namespace board
                 // check_enemy_castling(move);
 
                 Bitboard enemy =
-                    (*move.piece_board) & (*move.target_board) ? *(move.piece_board) : ~(*move.piece_board);
-                enemy &= move.bitboard_move;
+                    (((*move.piece_board) & (*move.target_board)) ? (*move.piece_board) : ~(*move.piece_board))
+                    & move.bitboard_move;
+
+                if (move.type == MoveType::EN_PASSANT)
+                {
+                    _en_passant ^= enemy;
+                    enemy = (move.bitboard_move << 8 | move.bitboard_move >> 8) & RANK4OR5;
+                }
 
                 *move.target_board ^= enemy;
                 *enemy_pieces ^= enemy;
             }
         }
 
-        // en_passant_ ^= move.en_passant;
+        if (move.type != EN_PASSANT)
+        {
+            if (move.type == PASSING && !((*move.piece_board) & move.bitboard_move & RANK4OR5))
+                _en_passant = (move.bitboard_move << 8 & move.bitboard_move >> 8);
+            else
+                _en_passant = 0x0;
+        }
     }
 
     Bitboard *Chessboard::get_board_at_position(Bitboard position, bool is_white)

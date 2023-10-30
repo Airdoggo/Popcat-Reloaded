@@ -2,82 +2,97 @@
 
 namespace board
 {
-    static const Bitboard RANK1 = 0x00000000000000FF;
-    static const Bitboard RANK4 = 0x00000000FF000000;
-    static const Bitboard RANK5 = 0x000000FF00000000;
-    static const Bitboard RANK8 = 0xFF00000000000000;
-    static const Bitboard NOTFILEA = 0xFEFEFEFEFEFEFEFE;
-    static const Bitboard NOTFILEH = 0x7F7F7F7F7F7F7F7F;
+    static constexpr Bitboard RANK1 = 0x00000000000000FF;
+    static constexpr Bitboard RANK4 = 0x00000000FF000000;
+    static constexpr Bitboard RANK5 = 0x000000FF00000000;
+    static constexpr Bitboard RANK8 = 0xFF00000000000000;
+    static constexpr Bitboard NOTFILEA = 0xFEFEFEFEFEFEFEFE;
+    static constexpr Bitboard NOTFILEH = 0x7F7F7F7F7F7F7F7F;
 
-    static void generate_single_push_moves(Chessboard *board, std::vector<Move> &moves, Bitboard moves_bitboard,
-                                           Bitboard *piece_board, bool white_turn)
+    void Chessboard::generate_pawn_push_moves(std::vector<Move> &moves, Bitboard single_moves_bitboard,
+                                              Bitboard double_moves_bitboard, Bitboard *piece_board)
     {
-        Bitboard promotion_rank = white_turn ? RANK8 : RANK1;
+        Bitboard promotion_rank = _white_turn ? RANK8 : RANK1;
         unsigned long index;
 
-        while (_BitScanForward64(&index, moves_bitboard))
+        while (_BitScanForward64(&index, single_moves_bitboard))
         {
             Bitboard move = 1ULL << index;
-            Bitboard position = white_turn ? (move >> 8) : (move << 8);
+            Bitboard position = _white_turn ? (move >> 8) : (move << 8);
 
-            moves_bitboard ^= move;
+            single_moves_bitboard ^= move;
 
-            if (board->validate_move(piece_board, nullptr, position, move))
+            if (validate_move(piece_board, nullptr, position, move))
             {
                 move |= position;
 
                 if (move & promotion_rank)
                 {
-                    moves.push_back({ move, piece_board, nullptr, white_turn, MoveType::PROMOTION_QUEEN });
-                    moves.push_back({ move, piece_board, nullptr, white_turn, MoveType::PROMOTION_KNIGHT });
-                    moves.push_back({ move, piece_board, nullptr, white_turn, MoveType::PROMOTION_ROOK });
-                    moves.push_back({ move, piece_board, nullptr, white_turn, MoveType::PROMOTION_BISHOP });
+                    moves.push_back({ move, piece_board, nullptr, _white_turn, MoveType::PROMOTION_QUEEN });
+                    moves.push_back({ move, piece_board, nullptr, _white_turn, MoveType::PROMOTION_KNIGHT });
+                    moves.push_back({ move, piece_board, nullptr, _white_turn, MoveType::PROMOTION_ROOK });
+                    moves.push_back({ move, piece_board, nullptr, _white_turn, MoveType::PROMOTION_BISHOP });
                 }
                 else
                 {
-                    moves.push_back({ move, piece_board, nullptr, white_turn, MoveType::NONE });
+                    moves.push_back({ move, piece_board, nullptr, _white_turn, MoveType::NONE });
                 }
             }
         }
-    }
 
-    static void generate_double_push_moves(Chessboard *board, std::vector<Move> &moves, Bitboard moves_bitboard,
-                                           Bitboard *piece_board, Bitboard enemy_pawns, bool white_turn)
-    {
-        Bitboard possible_en_passant_pawns = enemy_pawns & (white_turn ? RANK4 : RANK5);
-        unsigned long index;
+        Bitboard possible_en_passant_pawns = _white_turn ? (_black_pawns & RANK4) : (_white_pawns & RANK5);
 
-        while (_BitScanForward64(&index, moves_bitboard))
+        while (_BitScanForward64(&index, double_moves_bitboard))
         {
             Bitboard move = 1ULL << index;
-            Bitboard position = white_turn ? (move >> 16) : (move << 16);
+            Bitboard position = _white_turn ? (move >> 16) : (move << 16);
 
             MoveType type =
                 (possible_en_passant_pawns && (((position >> 1) | (position << 1)) & possible_en_passant_pawns))
                 ? MoveType::PASSING
                 : MoveType::NONE;
 
-            if (board->validate_move(piece_board, nullptr, position, move))
-                moves.push_back({ position | move, piece_board, nullptr, white_turn, type });
+            if (validate_move(piece_board, nullptr, position, move))
+                moves.push_back({ position | move, piece_board, nullptr, _white_turn, type });
 
-            moves_bitboard ^= move;
+            double_moves_bitboard ^= move;
         }
     }
 
-    static void generate_attacks(Chessboard *board, std::vector<Move> &moves, Bitboard moves_bitboard,
-                                 Bitboard *piece_board, bool white_turn, bool east_attacks)
+    void Chessboard::generate_pawn_attack_moves(std::vector<Move> &moves, Bitboard moves_bitboard,
+                                                Bitboard *piece_board, bool east_attacks)
     {
-        unsigned offset = (white_turn ^ east_attacks) ? 7 : 9;
+        unsigned offset = (_white_turn ^ east_attacks) ? 7 : 9;
         unsigned long index;
 
         while (_BitScanForward64(&index, moves_bitboard))
         {
             Bitboard move = 1ULL << index;
-            Bitboard position = white_turn ? (move >> offset) : (move << offset);
+            Bitboard position = _white_turn ? (move >> offset) : (move << offset);
 
-            if (board->validate_move(piece_board, nullptr, position, move))
-                moves.push_back({ position | move, piece_board, board->get_board_at_position(move, !white_turn),
-                                  white_turn, MoveType::NONE });
+            if (move & _en_passant)
+            {
+                Bitboard enemy_pawn_position = _white_turn ? move >> 8 : move << 8;
+                Bitboard enemy_pawn_offset = move | enemy_pawn_position;
+                Bitboard *enemy = get_board_at_position(enemy_pawn_position, !_white_turn);
+                Bitboard *enemies = _white_turn ? &_blacks : &_whites;
+
+                *enemy ^= enemy_pawn_offset;
+                *enemies ^= enemy_pawn_offset;
+
+                if (validate_move(piece_board, enemy, position, move))
+                    moves.push_back({ position | move, piece_board, enemy, _white_turn, MoveType::EN_PASSANT });
+
+                *enemy ^= enemy_pawn_offset;
+                *enemies ^= enemy_pawn_offset;
+            }
+            else
+            {
+                Bitboard *enemy = get_board_at_position(move, !_white_turn);
+
+                if (validate_move(piece_board, enemy, position, move))
+                    moves.push_back({ position | move, piece_board, enemy, _white_turn, MoveType::NONE });
+            }
 
             moves_bitboard ^= move;
         }
@@ -85,43 +100,39 @@ namespace board
 
     void Chessboard::generate_pawn_moves(std::vector<Move> &moves)
     {
+        Bitboard empty = ~(_whites | _blacks);
+
         if (_white_turn)
         {
-            Bitboard empty = ~(_whites | _blacks);
-
             Bitboard single_push = (_white_pawns << 8) & empty;
 
             Bitboard double_push = (single_push << 8) & empty & RANK4;
 
-            generate_single_push_moves(this, moves, single_push, &_white_pawns, _white_turn);
-            generate_double_push_moves(this, moves, double_push, &_white_pawns, _black_pawns, _white_turn);
+            generate_pawn_push_moves(moves, single_push, double_push, &_white_pawns);
 
             Bitboard enemy_pieces = _blacks | _en_passant;
 
             Bitboard east_attacks = (_white_pawns << 9) & NOTFILEA & enemy_pieces;
             Bitboard west_attacks = (_white_pawns << 7) & NOTFILEH & enemy_pieces;
 
-            generate_attacks(this, moves, east_attacks, &_white_pawns, _white_turn, true);
-            generate_attacks(this, moves, west_attacks, &_white_pawns, _white_turn, false);
+            generate_pawn_attack_moves(moves, east_attacks, &_white_pawns, true);
+            generate_pawn_attack_moves(moves, west_attacks, &_white_pawns, false);
         }
         else
         {
-            Bitboard empty = ~(_whites | _blacks);
-
             Bitboard single_push = (_black_pawns >> 8) & empty;
 
             Bitboard double_push = (single_push >> 8) & empty & RANK5;
 
-            generate_single_push_moves(this, moves, single_push, &_black_pawns, _white_turn);
-            generate_double_push_moves(this, moves, double_push, &_black_pawns, _white_pawns, _white_turn);
+            generate_pawn_push_moves(moves, single_push, double_push, &_black_pawns);
 
             Bitboard enemy_pieces = _whites | _en_passant;
 
             Bitboard east_attacks = (_black_pawns >> 7) & NOTFILEA & enemy_pieces;
             Bitboard west_attacks = (_black_pawns >> 9) & NOTFILEH & enemy_pieces;
 
-            generate_attacks(this, moves, east_attacks, &_black_pawns, _white_turn, true);
-            generate_attacks(this, moves, west_attacks, &_black_pawns, _white_turn, false);
+            generate_pawn_attack_moves(moves, east_attacks, &_black_pawns, true);
+            generate_pawn_attack_moves(moves, west_attacks, &_black_pawns, false);
         }
     }
 } // namespace board

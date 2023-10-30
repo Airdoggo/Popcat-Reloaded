@@ -66,6 +66,11 @@ namespace board
         void generate_knight_moves(std::vector<Move> &moves);
         void generate_sliding_moves(std::vector<Move> &moves, PieceType type);
 
+        void generate_pawn_push_moves(std::vector<Move> &moves, Bitboard single_moves_bitboard,
+                                      Bitboard double_moves_bitboard, Bitboard *piece_board);
+        void generate_pawn_attack_moves(std::vector<Move> &moves, Bitboard moves_bitboard, Bitboard *piece_board,
+                                        bool east_attacks);
+
         Bitboard get_attack_board();
     };
 } // namespace board

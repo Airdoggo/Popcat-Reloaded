@@ -32,8 +32,8 @@ namespace board
         return !result;
     }
 
-    static const Bitboard NOTFILEA = 0xFEFEFEFEFEFEFEFE;
-    static const Bitboard NOTFILEH = 0x7F7F7F7F7F7F7F7F;
+    static constexpr Bitboard NOTFILEA = 0xFEFEFEFEFEFEFEFE;
+    static constexpr Bitboard NOTFILEH = 0x7F7F7F7F7F7F7F7F;
 
     inline static Bitboard get_pawn_attacks(Bitboard pawns, bool white_pawns)
     {
@@ -105,7 +105,7 @@ namespace board
                 | get_sliding_attacks(this, _black_queen, blockers, PieceType::QUEEN);
         }
 
-        return get_pawn_attacks(_white_pawns, false) | get_knight_attacks(this, _white_knights)
+        return get_pawn_attacks(_white_pawns, true) | get_knight_attacks(this, _white_knights)
             | get_king_attacks(this, _white_king) | get_sliding_attacks(this, _white_rooks, blockers, PieceType::ROOK)
             | get_sliding_attacks(this, _white_bishops, blockers, PieceType::BISHOP)
             | get_sliding_attacks(this, _white_queen, blockers, PieceType::QUEEN);
