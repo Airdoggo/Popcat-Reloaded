@@ -33,6 +33,8 @@ namespace board
         Bitboard *piece_board;
         Bitboard *target_board;
 
+        Bitboard en_passant;
+
         bool is_white;
         MoveType type = MoveType::NONE;
 

@@ -26,14 +26,17 @@ namespace board
 
                 if (move & RANK1OR8)
                 {
-                    moves.push_back({ move, piece_board, nullptr, _white_turn, MoveType::PROMOTION_QUEEN });
-                    moves.push_back({ move, piece_board, nullptr, _white_turn, MoveType::PROMOTION_KNIGHT });
-                    moves.push_back({ move, piece_board, nullptr, _white_turn, MoveType::PROMOTION_ROOK });
-                    moves.push_back({ move, piece_board, nullptr, _white_turn, MoveType::PROMOTION_BISHOP });
+                    moves.push_back(
+                        { move, piece_board, nullptr, _en_passant, _white_turn, MoveType::PROMOTION_QUEEN });
+                    moves.push_back(
+                        { move, piece_board, nullptr, _en_passant, _white_turn, MoveType::PROMOTION_KNIGHT });
+                    moves.push_back({ move, piece_board, nullptr, _en_passant, _white_turn, MoveType::PROMOTION_ROOK });
+                    moves.push_back(
+                        { move, piece_board, nullptr, _en_passant, _white_turn, MoveType::PROMOTION_BISHOP });
                 }
                 else
                 {
-                    moves.push_back({ move, piece_board, nullptr, _white_turn, MoveType::NONE });
+                    moves.push_back({ move, piece_board, nullptr, _en_passant, _white_turn, MoveType::NONE });
                 }
             }
         }
@@ -45,13 +48,12 @@ namespace board
             Bitboard move = 1ULL << index;
             Bitboard position = _white_turn ? (move >> 16) : (move << 16);
 
-            MoveType type =
-                (possible_en_passant_pawns && (((position >> 1) | (position << 1)) & possible_en_passant_pawns))
+            MoveType type = (possible_en_passant_pawns && (((move >> 1) | (move << 1)) & possible_en_passant_pawns))
                 ? MoveType::PASSING
                 : MoveType::NONE;
 
             if (validate_move(piece_board, nullptr, position, move))
-                moves.push_back({ position | move, piece_board, nullptr, _white_turn, type });
+                moves.push_back({ position | move, piece_board, nullptr, _en_passant, _white_turn, type });
 
             double_moves_bitboard ^= move;
         }
@@ -79,7 +81,8 @@ namespace board
                 *enemies ^= enemy_pawn_offset;
 
                 if (validate_move(piece_board, enemy, position, move))
-                    moves.push_back({ position | move, piece_board, enemy, _white_turn, MoveType::EN_PASSANT });
+                    moves.push_back(
+                        { position | move, piece_board, enemy, _en_passant, _white_turn, MoveType::EN_PASSANT });
 
                 *enemy ^= enemy_pawn_offset;
                 *enemies ^= enemy_pawn_offset;
@@ -93,14 +96,19 @@ namespace board
                     if (move & RANK1OR8)
                     {
                         Bitboard full_move = position | move;
-                        moves.push_back({ full_move, piece_board, enemy, _white_turn, MoveType::PROMOTION_QUEEN });
-                        moves.push_back({ full_move, piece_board, enemy, _white_turn, MoveType::PROMOTION_KNIGHT });
-                        moves.push_back({ full_move, piece_board, enemy, _white_turn, MoveType::PROMOTION_ROOK });
-                        moves.push_back({ full_move, piece_board, enemy, _white_turn, MoveType::PROMOTION_BISHOP });
+                        moves.push_back(
+                            { full_move, piece_board, enemy, _en_passant, _white_turn, MoveType::PROMOTION_QUEEN });
+                        moves.push_back(
+                            { full_move, piece_board, enemy, _en_passant, _white_turn, MoveType::PROMOTION_KNIGHT });
+                        moves.push_back(
+                            { full_move, piece_board, enemy, _en_passant, _white_turn, MoveType::PROMOTION_ROOK });
+                        moves.push_back(
+                            { full_move, piece_board, enemy, _en_passant, _white_turn, MoveType::PROMOTION_BISHOP });
                     }
                     else
                     {
-                        moves.push_back({ position | move, piece_board, enemy, _white_turn, MoveType::NONE });
+                        moves.push_back(
+                            { position | move, piece_board, enemy, _en_passant, _white_turn, MoveType::NONE });
                     }
                 }
             }

@@ -28,13 +28,20 @@ namespace board
         *friendly_pieces ^= *friendly_king;
 
         Bitboard moves_table = tables.king[index] & movable & ~attack_board;
-        Bitboard *castling = _white_turn ? &_white_castling : &_black_castling;
+        Bitboard castling = _white_turn ? _white_castling : _black_castling;
 
-        MoveType type = (*castling)
-            ? ((*castling) & QUEEN_CASTLING
-                   ? ((*castling) & KING_CASTLING ? MoveType::BREAK_BOTH_CASTLING : MoveType::BREAK_CASTLING_QUEEN)
-                   : MoveType::BREAK_CASTLING_KING)
-            : MoveType::NONE;
+        MoveType type = MoveType::NONE;
+        if (castling)
+        {
+            if (castling & QUEEN_CASTLING)
+            {
+                type = static_cast<MoveType>(type | MoveType::BREAK_CASTLING_QUEEN);
+            }
+            if (castling & KING_CASTLING)
+            {
+                type = static_cast<MoveType>(type | MoveType::BREAK_CASTLING_KING);
+            }
+        }
 
         while (_BitScanForward64(&index, moves_table))
         {
@@ -44,11 +51,11 @@ namespace board
             {
                 Bitboard *enemy = get_board_at_position(move, !_white_turn);
                 if (validate_move(friendly_king, enemy, *friendly_king, move))
-                    moves.push_back({ move | *friendly_king, friendly_king, enemy, _white_turn, type });
+                    moves.push_back({ move | *friendly_king, friendly_king, enemy, _en_passant, _white_turn, type });
             }
             else // Already validated
             {
-                moves.push_back({ move | *friendly_king, friendly_king, nullptr, _white_turn, type });
+                moves.push_back({ move | *friendly_king, friendly_king, nullptr, _en_passant, _white_turn, type });
             }
 
             moves_table ^= move;
@@ -64,21 +71,21 @@ namespace board
             Bitboard castling_queenside = _white_turn ? WHITE_QUEEN_CASTLING : BLACK_QUEEN_CASTLING;
             Bitboard castling_kingside = _white_turn ? WHITE_KING_CASTLING : BLACK_KING_CASTLING;
 
-            if (!(castling_queenside & blockers) && type & BREAK_CASTLING_QUEEN)
+            if (!(castling_queenside & blockers) && type & MoveType::BREAK_CASTLING_QUEEN)
             {
                 Bitboard castling_check = _white_turn ? WHITE_QUEEN_CASTLING_CHECK : BLACK_QUEEN_CASTLING_CHECK;
                 if (!(castling_queenside & attack_board))
                 {
-                    moves.push_back({ (*friendly_king) >> 2 | *friendly_king, friendly_king, nullptr, _white_turn,
-                                      static_cast<MoveType>(MoveType::CASTLING_QUEEN | type) });
+                    moves.push_back({ (*friendly_king) >> 2 | *friendly_king, friendly_king, nullptr, _en_passant,
+                                      _white_turn, static_cast<MoveType>(MoveType::CASTLING_QUEEN | type) });
                 }
             }
-            if (!(castling_kingside & blockers) && type & BREAK_CASTLING_KING)
+            if (!(castling_kingside & blockers) && type & MoveType::BREAK_CASTLING_KING)
             {
                 if (!(castling_kingside & attack_board))
                 {
-                    moves.push_back({ (*friendly_king) << 2 | *friendly_king, friendly_king, nullptr, _white_turn,
-                                      static_cast<MoveType>(MoveType::CASTLING_KING | type) });
+                    moves.push_back({ (*friendly_king) << 2 | *friendly_king, friendly_king, nullptr, _en_passant,
+                                      _white_turn, static_cast<MoveType>(MoveType::CASTLING_KING | type) });
                 }
             }
         }

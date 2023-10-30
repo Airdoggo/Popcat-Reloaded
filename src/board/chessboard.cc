@@ -159,12 +159,9 @@ namespace board
 
             if (move.target_board != nullptr)
             {
-                // check_enemy_castling(move);
-
                 if (move.type == MoveType::EN_PASSANT)
                 {
                     Bitboard enemy = move.bitboard_move & RANK3OR6;
-                    _en_passant ^= enemy;
                     enemy = (enemy << 8 | enemy >> 8) & RANK4OR5;
 
                     *move.target_board ^= enemy;
@@ -196,13 +193,9 @@ namespace board
             }
         }
 
-        if (move.type != EN_PASSANT)
-        {
-            if (move.type == PASSING && !((*move.piece_board) & move.bitboard_move & RANK4OR5))
-                _en_passant = (move.bitboard_move << 8 & move.bitboard_move >> 8);
-            else
-                _en_passant = 0x0;
-        }
+        _en_passant ^= move.type == MoveType::PASSING
+            ? move.en_passant | (move.bitboard_move << 8 & move.bitboard_move >> 8)
+            : move.en_passant;
     }
 
     Bitboard *Chessboard::get_board_at_position(Bitboard position, bool is_white)
