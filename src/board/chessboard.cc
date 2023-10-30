@@ -92,6 +92,7 @@ namespace board
         if (move.type & MoveType::PROMOTION)
         {
             Bitboard *friend_pieces = _white_turn ? &_whites : &_blacks;
+            Bitboard *enemy_pieces = _white_turn ? &_blacks : &_whites;
 
             // Absolutely horrible, to change ASAP
             Bitboard *promotion_board = move.type == MoveType::PROMOTION_KNIGHT
@@ -100,12 +101,19 @@ namespace board
                 : move.type == MoveType::PROMOTION_ROOK   ? (move.is_white ? &_white_rooks : &_black_rooks)
                                                           : (move.is_white ? &_white_queen : &_black_queen);
 
-            Bitboard move_start = ((*move.piece_board) | ~(*promotion_board)) & move.bitboard_move;
-            Bitboard move_end = move.bitboard_move ^ move_start;
+            Bitboard move_start = (*move.piece_board) & move.bitboard_move;
+            Bitboard move_end = move_start ? move.bitboard_move ^ move_start : (*promotion_board) & move.bitboard_move;
+            move_start = move_end ^ move.bitboard_move;
 
             (*move.piece_board) ^= move_start;
             (*promotion_board) ^= move_end;
             (*friend_pieces) ^= move.bitboard_move;
+
+            if (move.target_board != nullptr)
+            {
+                *move.target_board ^= move_end;
+                *enemy_pieces ^= move_end;
+            }
         }
         else if (move.type & MoveType::CASTLING)
         {
