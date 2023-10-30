@@ -36,10 +36,6 @@ namespace board
         unsigned _halfmoves = 0;
 
         bool _white_turn = true;
-        bool _white_king_castling = false;
-        bool _white_queen_castling = false;
-        bool _black_king_castling = false;
-        bool _black_queen_castling = false;
 
         Bitboard _whites = 0;
         Bitboard _blacks = 0;
@@ -59,6 +55,9 @@ namespace board
         Bitboard _black_rooks = 0;
 
         Bitboard _en_passant = 0;
+
+        Bitboard _white_castling = 0;
+        Bitboard _black_castling = 0;
 
         // Defined in '/moves/<piece>_moves.cc
         void generate_pawn_moves(std::vector<Move> &moves);
