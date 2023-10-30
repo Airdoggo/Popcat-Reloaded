@@ -89,7 +89,6 @@ namespace board
         // If the opponent broke a castling opportunity
         if (_offset_castling_break != MoveType::NONE)
         {
-            return;
             for (Move &move : moves)
                 move.type = static_cast<MoveType>(move.type | _offset_castling_break);
 
