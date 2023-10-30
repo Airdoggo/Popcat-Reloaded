@@ -11,6 +11,16 @@ namespace board
     static constexpr Bitboard RANK3OR6 = 0x0000FF0000FF0000;
     static constexpr Bitboard RANK4OR5 = 0x000000FFFF000000;
 
+    static constexpr Bitboard WHITE_QUEEN_CASTLING = 0x000000000000000E;
+    static constexpr Bitboard WHITE_KING_CASTLING = 0x0000000000000060;
+    static constexpr Bitboard BLACK_QUEEN_CASTLING = 0x0E00000000000000;
+    static constexpr Bitboard BLACK_KING_CASTLING = 0x6000000000000000;
+
+    static constexpr Bitboard WHITE_QUEEN_CASTLING_ROOK_MOVE = 0x0000000000000009;
+    static constexpr Bitboard WHITE_KING_CASTLING_ROOK_MOVE = 0x000000000000000A0;
+    static constexpr Bitboard BLACK_QUEEN_CASTLING_ROOK_MOVE = 0x0900000000000000;
+    static constexpr Bitboard BLACK_KING_CASTLING_ROOK_MOVE = 0xA000000000000000;
+
     Chessboard::Chessboard()
         : Chessboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
     {}
@@ -53,10 +63,14 @@ namespace board
 
         if (castling[0] != '-')
         {
-            _white_king_castling = castling.find('K') != std::string::npos;
-            _white_queen_castling = castling.find('Q') != std::string::npos;
-            _black_king_castling = castling.find('k') != std::string::npos;
-            _black_queen_castling = castling.find('q') != std::string::npos;
+            if (castling.find('K') != std::string::npos)
+                _white_castling |= WHITE_KING_CASTLING;
+            if (castling.find('Q') != std::string::npos)
+                _white_castling |= WHITE_QUEEN_CASTLING;
+            if (castling.find('k') != std::string::npos)
+                _black_castling |= BLACK_KING_CASTLING;
+            if (castling.find('q') != std::string::npos)
+                _black_castling |= BLACK_QUEEN_CASTLING;
         }
 
         if (en_passant != "-")
@@ -75,8 +89,10 @@ namespace board
 
     void Chessboard::do_move(const Move &move)
     {
-        if (move.type <= MoveType::PROMOTION_KNIGHT)
+        if (move.type & MoveType::PROMOTION)
         {
+            Bitboard *friend_pieces = _white_turn ? &_whites : &_blacks;
+
             // Absolutely horrible, to change ASAP
             Bitboard *promotion_board = move.type == MoveType::PROMOTION_KNIGHT
                 ? (move.is_white ? &_white_knights : &_black_knights)
@@ -89,9 +105,42 @@ namespace board
 
             (*move.piece_board) ^= move_start;
             (*promotion_board) ^= move_end;
+            (*friend_pieces) ^= move.bitboard_move;
         }
-        else if (move.type <= MoveType::CASTLING_KING)
-            return; // handle_castling(move);
+        else if (move.type & MoveType::CASTLING)
+        {
+            Bitboard *friend_pieces = _white_turn ? &_whites : &_blacks;
+            Bitboard *rook_board = move.is_white ? &_white_rooks : &_black_rooks;
+
+            *(move.piece_board) ^= move.bitboard_move;
+
+            if (move.type & MoveType::CASTLING_KING)
+            {
+                Bitboard rook_move = move.is_white ? WHITE_KING_CASTLING_ROOK_MOVE : BLACK_KING_CASTLING_ROOK_MOVE;
+                (*rook_board) ^= rook_move;
+                (*friend_pieces) ^= move.bitboard_move | rook_move;
+            }
+            else
+            {
+                Bitboard rook_move = move.is_white ? WHITE_QUEEN_CASTLING_ROOK_MOVE : BLACK_QUEEN_CASTLING_ROOK_MOVE;
+                (*rook_board) ^= rook_move;
+                (*friend_pieces) ^= move.bitboard_move | rook_move;
+            }
+
+            if (move.type & MoveType::BREAK_BOTH_CASTLING)
+            {
+                Bitboard *castling = move.is_white ? &_white_castling : &_black_castling;
+
+                if (move.type & MoveType::BREAK_CASTLING_KING)
+                {
+                    (*castling) ^= move.is_white ? WHITE_KING_CASTLING : BLACK_KING_CASTLING;
+                }
+                if (move.type & MoveType::BREAK_CASTLING_QUEEN)
+                {
+                    (*castling) ^= move.is_white ? WHITE_QUEEN_CASTLING : BLACK_QUEEN_CASTLING;
+                }
+            }
+        }
         else
         {
             Bitboard *friend_pieces = _white_turn ? &_whites : &_blacks;
@@ -121,6 +170,20 @@ namespace board
 
                     *move.target_board ^= enemy;
                     *enemy_pieces ^= enemy;
+                }
+            }
+
+            if (move.type & MoveType::BREAK_BOTH_CASTLING)
+            {
+                Bitboard *castling = move.is_white ? &_white_castling : &_black_castling;
+
+                if (move.type & MoveType::BREAK_CASTLING_KING)
+                {
+                    (*castling) ^= move.is_white ? WHITE_KING_CASTLING : BLACK_KING_CASTLING;
+                }
+                if (move.type & MoveType::BREAK_CASTLING_QUEEN)
+                {
+                    (*castling) ^= move.is_white ? WHITE_QUEEN_CASTLING : BLACK_QUEEN_CASTLING;
                 }
             }
         }
