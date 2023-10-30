@@ -1,5 +1,6 @@
 #include "perft-handler.hh"
 
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <vector>
@@ -8,7 +9,7 @@
 
 namespace board
 {
-    void PerftHandler::compute_perft(const std::string &perft_path)
+    void PerftHandler::compute_perft(const std::string &perft_path, bool debug)
     {
         std::ifstream file(perft_path);
         std::string perft_string;
@@ -19,7 +20,11 @@ namespace board
         perft_string.pop_back();
 
         Chessboard board = Chessboard(perft_string);
-        std::cout << run_perft(board, depth) << std::endl;
+
+        if (!debug)
+            std::cout << run_perft(board, depth) << std::endl;
+        else
+            std::cout << run_verbose_perft(board, depth, "") << std::endl;
     }
 
     size_t PerftHandler::run_perft(Chessboard &board, unsigned depth)
@@ -38,6 +43,58 @@ namespace board
             board.switch_turn();
 
             nb_moves += run_perft(board, depth - 1);
+
+            board.switch_turn();
+            board.do_move(move);
+        }
+
+        return nb_moves;
+    }
+
+    static std::string move_to_string(const Move &move)
+    {
+        std::string result = "";
+        Bitboard move_start = move.bitboard_move & (*move.piece_board);
+        Bitboard move_end = move.bitboard_move ^ move_start;
+
+        unsigned long index;
+
+        _BitScanForward64(&index, move_start);
+        result += 'a' + (char)(index % 8);
+        result += '1' + (char)(index / 8);
+
+        _BitScanForward64(&index, move_end);
+        result += 'a' + (char)(index % 8);
+        result += '1' + (char)(index / 8);
+
+        return result;
+    }
+
+    size_t PerftHandler::run_verbose_perft(Chessboard &board, unsigned depth, std::string moves_history)
+    {
+        std::vector<Move> moves;
+        board.generate_legal_moves(moves);
+
+        if (depth <= 1)
+            return moves.size();
+
+        size_t nb_moves = 0;
+
+        std::sort(moves.begin(), moves.end(), [](const Move &a, const Move &b) {
+            return (a.bitboard_move & (*a.piece_board)) < (b.bitboard_move & (*b.piece_board));
+        });
+
+        for (const Move &move : moves)
+        {
+            std::string new_history = moves_history + (moves_history.empty() ? "" : " ") + move_to_string(move);
+
+            board.do_move(move);
+            board.switch_turn();
+
+            size_t perft_result = run_verbose_perft(board, depth - 1, new_history);
+            nb_moves += perft_result;
+
+            std::cout << new_history << " " << perft_result << std::endl;
 
             board.switch_turn();
             board.do_move(move);
