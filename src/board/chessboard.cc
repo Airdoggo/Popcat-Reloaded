@@ -8,6 +8,7 @@
 
 namespace board
 {
+    static constexpr Bitboard RANK3OR6 = 0x0000FF0000FF0000;
     static constexpr Bitboard RANK4OR5 = 0x000000FFFF000000;
 
     Chessboard::Chessboard()
@@ -90,18 +91,24 @@ namespace board
             {
                 // check_enemy_castling(move);
 
-                Bitboard enemy =
-                    (((*move.piece_board) & (*move.target_board)) ? (*move.piece_board) : ~(*move.piece_board))
-                    & move.bitboard_move;
-
                 if (move.type == MoveType::EN_PASSANT)
                 {
+                    Bitboard enemy = move.bitboard_move & RANK3OR6;
                     _en_passant ^= enemy;
-                    enemy = (move.bitboard_move << 8 | move.bitboard_move >> 8) & RANK4OR5;
-                }
+                    enemy = (enemy << 8 | enemy >> 8) & RANK4OR5;
 
-                *move.target_board ^= enemy;
-                *enemy_pieces ^= enemy;
+                    *move.target_board ^= enemy;
+                    *enemy_pieces ^= enemy;
+                }
+                else
+                {
+                    Bitboard enemy =
+                        (((*move.piece_board) & (*move.target_board)) ? (*move.piece_board) : ~(*move.piece_board))
+                        & move.bitboard_move;
+
+                    *move.target_board ^= enemy;
+                    *enemy_pieces ^= enemy;
+                }
             }
         }
 
