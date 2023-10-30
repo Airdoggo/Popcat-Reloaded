@@ -59,6 +59,8 @@ namespace board
         Bitboard _white_castling = 0;
         Bitboard _black_castling = 0;
 
+        MoveType _offset_castling_break = MoveType::NONE;
+
         // Defined in '/moves/<piece>_moves.cc
         void generate_pawn_moves(std::vector<Move> &moves);
         void generate_king_moves(std::vector<Move> &moves);
