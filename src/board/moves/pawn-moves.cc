@@ -2,17 +2,15 @@
 
 namespace board
 {
-    static constexpr Bitboard RANK1 = 0x00000000000000FF;
+    static constexpr Bitboard RANK1OR8 = 0xFF000000000000FF;
     static constexpr Bitboard RANK4 = 0x00000000FF000000;
     static constexpr Bitboard RANK5 = 0x000000FF00000000;
-    static constexpr Bitboard RANK8 = 0xFF00000000000000;
     static constexpr Bitboard NOTFILEA = 0xFEFEFEFEFEFEFEFE;
     static constexpr Bitboard NOTFILEH = 0x7F7F7F7F7F7F7F7F;
 
     void Chessboard::generate_pawn_push_moves(std::vector<Move> &moves, Bitboard single_moves_bitboard,
                                               Bitboard double_moves_bitboard, Bitboard *piece_board)
     {
-        Bitboard promotion_rank = _white_turn ? RANK8 : RANK1;
         unsigned long index;
 
         while (_BitScanForward64(&index, single_moves_bitboard))
@@ -26,7 +24,7 @@ namespace board
             {
                 move |= position;
 
-                if (move & promotion_rank)
+                if (move & RANK1OR8)
                 {
                     moves.push_back({ move, piece_board, nullptr, _white_turn, MoveType::PROMOTION_QUEEN });
                     moves.push_back({ move, piece_board, nullptr, _white_turn, MoveType::PROMOTION_KNIGHT });
@@ -91,7 +89,20 @@ namespace board
                 Bitboard *enemy = get_board_at_position(move, !_white_turn);
 
                 if (validate_move(piece_board, enemy, position, move))
-                    moves.push_back({ position | move, piece_board, enemy, _white_turn, MoveType::NONE });
+                {
+                    if (move & RANK1OR8)
+                    {
+                        Bitboard full_move = position | move;
+                        moves.push_back({ full_move, piece_board, enemy, _white_turn, MoveType::PROMOTION_QUEEN });
+                        moves.push_back({ full_move, piece_board, enemy, _white_turn, MoveType::PROMOTION_KNIGHT });
+                        moves.push_back({ full_move, piece_board, enemy, _white_turn, MoveType::PROMOTION_ROOK });
+                        moves.push_back({ full_move, piece_board, enemy, _white_turn, MoveType::PROMOTION_BISHOP });
+                    }
+                    else
+                    {
+                        moves.push_back({ position | move, piece_board, enemy, _white_turn, MoveType::NONE });
+                    }
+                }
             }
 
             moves_bitboard ^= move;
