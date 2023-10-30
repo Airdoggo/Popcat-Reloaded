@@ -85,6 +85,16 @@ namespace board
         generate_sliding_moves(moves, PieceType::BISHOP);
         generate_sliding_moves(moves, PieceType::QUEEN);
         generate_knight_moves(moves);
+
+        // If the opponent broke a castling opportunity
+        if (_offset_castling_break != MoveType::NONE)
+        {
+            return;
+            for (Move &move : moves)
+                move.type = static_cast<MoveType>(move.type | _offset_castling_break);
+
+            _offset_castling_break = MoveType::NONE;
+        }
     }
 
     void Chessboard::do_move(const Move &move)

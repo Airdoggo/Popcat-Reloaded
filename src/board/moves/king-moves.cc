@@ -13,6 +13,11 @@ namespace board
     static constexpr Bitboard WHITE_QUEEN_CASTLING_CHECK = 0x000000000000000C;
     static constexpr Bitboard BLACK_QUEEN_CASTLING_CHECK = 0x0C00000000000000;
 
+    static constexpr Bitboard WHITE_ROOKS_STARTING_POSITION = 0x0000000000000081;
+    static constexpr Bitboard BLACK_ROOKS_STARTING_POSITION = 0x8100000000000000;
+    static constexpr Bitboard ROOKS_QUEEN_CASTLING_START_POSITION = 0x0100000000000001;
+    static constexpr Bitboard ROOKS_KING_CASTLING_START_POSITION = 0x8000000000000080;
+
     void Chessboard::generate_king_moves(std::vector<Move> &moves)
     {
         Bitboard *friendly_king = _white_turn ? &_white_king : &_black_king;
@@ -33,13 +38,24 @@ namespace board
         MoveType type = MoveType::NONE;
         if (castling)
         {
+            Bitboard castling_rooks = _white_turn ? _white_rooks & WHITE_ROOKS_STARTING_POSITION
+                                                  : _black_rooks & BLACK_ROOKS_STARTING_POSITION;
+
             if (castling & QUEEN_CASTLING)
             {
                 type = static_cast<MoveType>(type | MoveType::BREAK_CASTLING_QUEEN);
+
+                if (!(castling_rooks & ROOKS_QUEEN_CASTLING_START_POSITION)) // Enemy broke queen castling
+                    _offset_castling_break =
+                        static_cast<MoveType>(_offset_castling_break | MoveType::BREAK_CASTLING_QUEEN);
             }
             if (castling & KING_CASTLING)
             {
                 type = static_cast<MoveType>(type | MoveType::BREAK_CASTLING_KING);
+
+                if (!(castling_rooks & ROOKS_KING_CASTLING_START_POSITION)) // Enemy broke king castling
+                    _offset_castling_break =
+                        static_cast<MoveType>(_offset_castling_break | MoveType::BREAK_CASTLING_KING);
             }
         }
 
