@@ -16,7 +16,7 @@ def perft(depth, board, moves = ""):
         res += perft_result
         board.pop()
 
-        print(new_moves, perft_result)
+        print(new_moves, perft_result, flush=True)
 
     return res
 
