@@ -9,5 +9,5 @@ add_library(board
     "moves/validation.cc"
     "moves/tables.cc"
 )
-message("ASZASZASZASAZSAZSZAS" "${CMAKE_CURRENT_SOURCE_DIR}")
+
 target_include_directories(board PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
