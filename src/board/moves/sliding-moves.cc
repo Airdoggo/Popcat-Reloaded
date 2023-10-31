@@ -4,8 +4,10 @@ namespace board
 {
     static constexpr Bitboard QUEEN_CASTLING = 0x0E0000000000000E;
     static constexpr Bitboard KING_CASTLING = 0x6000000000000060;
-    static constexpr Bitboard ROOKS_QUEEN_CASTLING_START_POSITION = 0x0100000000000001;
-    static constexpr Bitboard ROOKS_KING_CASTLING_START_POSITION = 0x8000000000000080;
+    static constexpr Bitboard WHITE_ROOK_QUEEN_CASTLING_START_POSITION = 0x0000000000000001;
+    static constexpr Bitboard WHITE_ROOK_KING_CASTLING_START_POSITION = 0x0000000000000080;
+    static constexpr Bitboard BLACK_ROOK_QUEEN_CASTLING_START_POSITION = 0x0100000000000000;
+    static constexpr Bitboard BLACK_ROOK_KING_CASTLING_START_POSITION = 0x8000000000000000;
 
     void Chessboard::generate_sliding_moves(std::vector<Move> &moves, PieceType type)
     {
@@ -63,9 +65,15 @@ namespace board
                 Bitboard castling = _white_turn ? _white_castling : _black_castling;
                 if (castling)
                 {
-                    if (castling & QUEEN_CASTLING && position & ROOKS_QUEEN_CASTLING_START_POSITION)
+                    if (castling & QUEEN_CASTLING
+                        && position
+                            & (_white_turn ? WHITE_ROOK_QUEEN_CASTLING_START_POSITION
+                                           : BLACK_ROOK_QUEEN_CASTLING_START_POSITION))
                         move_type = MoveType::BREAK_CASTLING_QUEEN;
-                    else if (castling & KING_CASTLING && position & ROOKS_KING_CASTLING_START_POSITION)
+                    else if (castling & KING_CASTLING
+                             && position
+                                 & (_white_turn ? WHITE_ROOK_KING_CASTLING_START_POSITION
+                                                : BLACK_ROOK_KING_CASTLING_START_POSITION))
                         move_type = MoveType::BREAK_CASTLING_KING;
                 }
             }
