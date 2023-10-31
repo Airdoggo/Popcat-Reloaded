@@ -168,7 +168,7 @@ namespace board
 
             if (move.target_board != nullptr)
             {
-                if (move.type == MoveType::EN_PASSANT)
+                if (move.type & MoveType::EN_PASSANT)
                 {
                     Bitboard enemy = move.bitboard_move & RANK3OR6;
                     enemy = (enemy << 8 | enemy >> 8) & RANK4OR5;
@@ -202,7 +202,7 @@ namespace board
             }
         }
 
-        _en_passant ^= move.type == MoveType::PASSING
+        _en_passant ^= (move.type & MoveType::PASSING)
             ? move.en_passant | (move.bitboard_move << 8 & move.bitboard_move >> 8)
             : move.en_passant;
     }
