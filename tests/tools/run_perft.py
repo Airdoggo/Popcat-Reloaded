@@ -10,10 +10,6 @@ good = 0
 fail = 0
 errors = []
 
-min_nodes_bench = 5000000
-speed_sum = 0
-nb_benchmarked = 0
-
 no_color = '\033[0m'
 good_color = '\033[90m'
 fail_color = '\033[91m'
@@ -22,16 +18,7 @@ def print_test_result(test_name, ref_result, engine_result, duration):
     name = test_name.name.split('/')[-1]
 
     if ref_result == int(engine_result) or ref_result == -1:
-        print(f"{good_color}[ PASSED ]{no_color} ", f"{name}: {engine_result}", end = "")
-
-        if (engine_result >= min_nodes_bench):
-            speed = int(engine_result / duration / 1000)
-            global speed_sum, nb_benchmarked
-            speed_sum += speed
-            nb_benchmarked += 1
-            print(f" | Speed: {speed} kNodes/s", end="")
-
-        print(flush=True)
+        print(f"{good_color}[ PASSED ]{no_color} ", f"{name}: {engine_result}", flush=True)
 
         global good
         good += 1
@@ -74,8 +61,7 @@ def run_perft_directory(perft_dir_path, engine_path, large):
         if not large and dir == "large":
             continue
 
-        for perft_file in sorted([f for f in os.listdir(perft_dir_path + '/' +
-                                                        dir)]):
+        for perft_file in sorted([f for f in os.listdir(perft_dir_path + '/' + dir)]):
             if perft_file.split('.')[-1] != "perft":
                 continue
 
@@ -87,8 +73,8 @@ def run_perft_directory(perft_dir_path, engine_path, large):
     for err in errors:
         print(err)
     print()
-    print(f"{fail_color}Failed: {fail} / {fail + good}", f"{good_color}Good: {good} /"
-                                                f" {fail + good}{no_color}",sep='\n')
+    print(f"{fail_color}Failed: {fail} / {fail + good}",
+          f"{good_color}Good: {good} / {fail + good}{no_color}", sep='\n')
 
     return fail == 0
 
@@ -108,9 +94,6 @@ if __name__ == "__main__":
 
     large = args.large.lower() == "true"
     res = run_perft_directory(args.perft_directory, args.binary, large)
-
-    if (nb_benchmarked > 0):
-        print(f"Average speed: {int(speed_sum / nb_benchmarked)} kNodes/s")
 
     if not res:
         exit(1)
