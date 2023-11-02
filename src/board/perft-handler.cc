@@ -12,6 +12,12 @@ namespace board
     void PerftHandler::compute_perft(const std::string &perft_path, bool debug)
     {
         std::ifstream file(perft_path);
+        if (!file.is_open())
+        {
+            std::cout << -1 << std::endl;
+            return;
+        }
+
         std::string perft_string;
         std::getline(file, perft_string);
 
