@@ -18,7 +18,7 @@ def print_test_result(test_name, ref_result, engine_result, duration):
     name = test_name.name.split('/')[-1]
 
     if ref_result == int(engine_result):
-        print(f"{good_color}[ PASSED ]{no_color} ", f"{name}: {engine_result}", flush=True)
+        print(f"{good_color}[ PASSED ]{no_color}", f"{name}: {engine_result}", flush=True)
 
         global good
         good += 1
