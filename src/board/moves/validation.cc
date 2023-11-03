@@ -32,9 +32,6 @@ namespace board
         return !result;
     }
 
-    static constexpr Bitboard NOTFILEA = 0xFEFEFEFEFEFEFEFE;
-    static constexpr Bitboard NOTFILEH = 0x7F7F7F7F7F7F7F7F;
-
     inline static Bitboard get_pawn_attacks(Bitboard pawns, bool white_pawns)
     {
         return (((white_pawns ? pawns << 9 : pawns >> 7) & NOTFILEA)
