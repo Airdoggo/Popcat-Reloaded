@@ -8,19 +8,6 @@
 
 namespace board
 {
-    static constexpr Bitboard RANK3OR6 = 0x0000FF0000FF0000;
-    static constexpr Bitboard RANK4OR5 = 0x000000FFFF000000;
-
-    static constexpr Bitboard WHITE_QUEEN_CASTLING = 0x000000000000000E;
-    static constexpr Bitboard WHITE_KING_CASTLING = 0x0000000000000060;
-    static constexpr Bitboard BLACK_QUEEN_CASTLING = 0x0E00000000000000;
-    static constexpr Bitboard BLACK_KING_CASTLING = 0x6000000000000000;
-
-    static constexpr Bitboard WHITE_QUEEN_CASTLING_ROOK_MOVE = 0x0000000000000009;
-    static constexpr Bitboard WHITE_KING_CASTLING_ROOK_MOVE = 0x000000000000000A0;
-    static constexpr Bitboard BLACK_QUEEN_CASTLING_ROOK_MOVE = 0x0900000000000000;
-    static constexpr Bitboard BLACK_KING_CASTLING_ROOK_MOVE = 0xA000000000000000;
-
     Chessboard::Chessboard()
         : Chessboard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
     {}
@@ -64,13 +51,13 @@ namespace board
         if (castling[0] != '-')
         {
             if (castling.find('K') != std::string::npos)
-                _white_castling |= WHITE_KING_CASTLING;
+                _white_castling |= WK_CASTLING;
             if (castling.find('Q') != std::string::npos)
-                _white_castling |= WHITE_QUEEN_CASTLING;
+                _white_castling |= WQ_CASTLING;
             if (castling.find('k') != std::string::npos)
-                _black_castling |= BLACK_KING_CASTLING;
+                _black_castling |= BK_CASTLING;
             if (castling.find('q') != std::string::npos)
-                _black_castling |= BLACK_QUEEN_CASTLING;
+                _black_castling |= BQ_CASTLING;
         }
 
         if (en_passant != "-")
@@ -133,13 +120,13 @@ namespace board
 
             if (move.type & MoveType::CASTLING_KING)
             {
-                Bitboard rook_move = move.is_white ? WHITE_KING_CASTLING_ROOK_MOVE : BLACK_KING_CASTLING_ROOK_MOVE;
+                Bitboard rook_move = move.is_white ? WK_CASTLING_ROOK_MOVE : BK_CASTLING_ROOK_MOVE;
                 (*rook_board) ^= rook_move;
                 (*friend_pieces) ^= move.bitboard_move | rook_move;
             }
             else
             {
-                Bitboard rook_move = move.is_white ? WHITE_QUEEN_CASTLING_ROOK_MOVE : BLACK_QUEEN_CASTLING_ROOK_MOVE;
+                Bitboard rook_move = move.is_white ? WQ_CASTLING_ROOK_MOVE : BQ_CASTLING_ROOK_MOVE;
                 (*rook_board) ^= rook_move;
                 (*friend_pieces) ^= move.bitboard_move | rook_move;
             }
@@ -150,11 +137,11 @@ namespace board
 
                 if (move.type & MoveType::BREAK_CASTLING_KING)
                 {
-                    (*castling) ^= move.is_white ? WHITE_KING_CASTLING : BLACK_KING_CASTLING;
+                    (*castling) ^= move.is_white ? WK_CASTLING : BK_CASTLING;
                 }
                 if (move.type & MoveType::BREAK_CASTLING_QUEEN)
                 {
-                    (*castling) ^= move.is_white ? WHITE_QUEEN_CASTLING : BLACK_QUEEN_CASTLING;
+                    (*castling) ^= move.is_white ? WQ_CASTLING : BQ_CASTLING;
                 }
             }
         }
@@ -193,11 +180,11 @@ namespace board
 
                 if (move.type & MoveType::BREAK_CASTLING_KING)
                 {
-                    (*castling) ^= move.is_white ? WHITE_KING_CASTLING : BLACK_KING_CASTLING;
+                    (*castling) ^= move.is_white ? WK_CASTLING : BK_CASTLING;
                 }
                 if (move.type & MoveType::BREAK_CASTLING_QUEEN)
                 {
-                    (*castling) ^= move.is_white ? WHITE_QUEEN_CASTLING : BLACK_QUEEN_CASTLING;
+                    (*castling) ^= move.is_white ? WQ_CASTLING : BQ_CASTLING;
                 }
             }
         }

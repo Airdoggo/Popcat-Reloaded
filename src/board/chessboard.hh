@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include "constants.hh"
 #include "moves/move.hh"
 #include "moves/piece-type.hh"
 #include "moves/tables.hh"

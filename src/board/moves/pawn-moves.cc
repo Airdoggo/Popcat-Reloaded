@@ -2,12 +2,6 @@
 
 namespace board
 {
-    static constexpr Bitboard RANK1OR8 = 0xFF000000000000FF;
-    static constexpr Bitboard RANK4 = 0x00000000FF000000;
-    static constexpr Bitboard RANK5 = 0x000000FF00000000;
-    static constexpr Bitboard NOTFILEA = 0xFEFEFEFEFEFEFEFE;
-    static constexpr Bitboard NOTFILEH = 0x7F7F7F7F7F7F7F7F;
-
     void Chessboard::generate_pawn_push_moves(std::vector<Move> &moves, Bitboard single_moves_bitboard,
                                               Bitboard double_moves_bitboard, Bitboard *piece_board)
     {
