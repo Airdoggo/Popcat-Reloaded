@@ -35,7 +35,7 @@ namespace board
             }
         }
 
-        Bitboard possible_en_passant_pawns = _white_turn ? (_black_pawns & RANK4) : (_white_pawns & RANK5);
+        Bitboard possible_en_passant_pawns = colors[_white_turn ? 1 : 0]->_pawns & (_white_turn ? RANK4 : RANK5);
 
         while (_BitScanForward64(&index, double_moves_bitboard))
         {
@@ -113,39 +113,41 @@ namespace board
 
     void Chessboard::generate_pawn_moves(std::vector<Move> &moves)
     {
+        ColorBitboards *color = _white_turn ? colors[0] : colors[1];
+
         Bitboard empty = ~(_whites | _blacks);
 
         if (_white_turn)
         {
-            Bitboard single_push = (_white_pawns << 8) & empty;
+            Bitboard single_push = (color->_pawns << 8) & empty;
 
             Bitboard double_push = (single_push << 8) & empty & RANK4;
 
-            generate_pawn_push_moves(moves, single_push, double_push, &_white_pawns);
+            generate_pawn_push_moves(moves, single_push, double_push, &color->_pawns);
 
-            Bitboard enemy_pieces = _blacks | _en_passant;
+            Bitboard enemy_pieces = (*color->_enemies) | _en_passant;
 
-            Bitboard east_attacks = (_white_pawns << 9) & NOTFILEA & enemy_pieces;
-            Bitboard west_attacks = (_white_pawns << 7) & NOTFILEH & enemy_pieces;
+            Bitboard east_attacks = (color->_pawns << 9) & NOTFILEA & enemy_pieces;
+            Bitboard west_attacks = (color->_pawns << 7) & NOTFILEH & enemy_pieces;
 
-            generate_pawn_attack_moves(moves, east_attacks, &_white_pawns, true);
-            generate_pawn_attack_moves(moves, west_attacks, &_white_pawns, false);
+            generate_pawn_attack_moves(moves, east_attacks, &color->_pawns, true);
+            generate_pawn_attack_moves(moves, west_attacks, &color->_pawns, false);
         }
         else
         {
-            Bitboard single_push = (_black_pawns >> 8) & empty;
+            Bitboard single_push = (color->_pawns >> 8) & empty;
 
             Bitboard double_push = (single_push >> 8) & empty & RANK5;
 
-            generate_pawn_push_moves(moves, single_push, double_push, &_black_pawns);
+            generate_pawn_push_moves(moves, single_push, double_push, &color->_pawns);
 
-            Bitboard enemy_pieces = _whites | _en_passant;
+            Bitboard enemy_pieces = (*color->_enemies) | _en_passant;
 
-            Bitboard east_attacks = (_black_pawns >> 7) & NOTFILEA & enemy_pieces;
-            Bitboard west_attacks = (_black_pawns >> 9) & NOTFILEH & enemy_pieces;
+            Bitboard east_attacks = (color->_pawns >> 7) & NOTFILEA & enemy_pieces;
+            Bitboard west_attacks = (color->_pawns >> 9) & NOTFILEH & enemy_pieces;
 
-            generate_pawn_attack_moves(moves, east_attacks, &_black_pawns, true);
-            generate_pawn_attack_moves(moves, west_attacks, &_black_pawns, false);
+            generate_pawn_attack_moves(moves, east_attacks, &color->_pawns, true);
+            generate_pawn_attack_moves(moves, west_attacks, &color->_pawns, false);
         }
     }
 } // namespace board

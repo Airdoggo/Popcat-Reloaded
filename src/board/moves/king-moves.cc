@@ -5,26 +5,26 @@ namespace board
 {
     void Chessboard::generate_king_moves(std::vector<Move> &moves)
     {
-        Bitboard *friendly_king = _white_turn ? &_white_king : &_black_king;
-        Bitboard movable = _white_turn ? ~_whites : ~_blacks;
-        Bitboard enemies = _white_turn ? _blacks : _whites;
+        ColorBitboards *color = _white_turn ? colors[0] : colors[1];
+        Bitboard *friendly_king = &color->_king;
+        Bitboard movable = ~(*color->_friends);
+        Bitboard enemies = *color->_enemies;
 
         unsigned long index;
         _BitScanForward64(&index, *friendly_king);
 
-        Bitboard *friendly_pieces = _white_turn ? &_whites : &_blacks;
+        Bitboard *friendly_pieces = color->_friends;
         *friendly_pieces ^= *friendly_king;
         Bitboard attack_board = get_attack_board();
         *friendly_pieces ^= *friendly_king;
 
         Bitboard moves_table = tables.king[index] & movable & ~attack_board;
-        Bitboard castling = _white_turn ? _white_castling : _black_castling;
+        Bitboard castling = color->_castling;
 
         MoveType type = MoveType::NONE;
         if (castling)
         {
-            Bitboard castling_rooks =
-                _white_turn ? _white_rooks & WR_STARTING_POSITION : _black_rooks & BR_STARTING_POSITION;
+            Bitboard castling_rooks = color->_rooks & (_white_turn ? WR_STARTING_POSITION : BR_STARTING_POSITION);
 
             if (castling & Q_CASTLING)
             {

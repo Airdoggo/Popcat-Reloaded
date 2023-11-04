@@ -13,6 +13,21 @@ typedef unsigned long long Bitboard;
 
 namespace board
 {
+    struct ColorBitboards
+    {
+        Bitboard _bishops = 0;
+        Bitboard _king = 0;
+        Bitboard _knights = 0;
+        Bitboard _pawns = 0;
+        Bitboard _queen = 0;
+        Bitboard _rooks = 0;
+
+        Bitboard _castling = 0;
+
+        Bitboard *_friends;
+        Bitboard *_enemies;
+    };
+
     class Chessboard final
     {
     public:
@@ -41,24 +56,12 @@ namespace board
         Bitboard _whites = 0;
         Bitboard _blacks = 0;
 
-        Bitboard _white_bishops = 0;
-        Bitboard _white_king = 0;
-        Bitboard _white_knights = 0;
-        Bitboard _white_pawns = 0;
-        Bitboard _white_queen = 0;
-        Bitboard _white_rooks = 0;
+        ColorBitboards _white_bitboards;
+        ColorBitboards _black_bitboards;
 
-        Bitboard _black_bishops = 0;
-        Bitboard _black_king = 0;
-        Bitboard _black_knights = 0;
-        Bitboard _black_pawns = 0;
-        Bitboard _black_queen = 0;
-        Bitboard _black_rooks = 0;
+        ColorBitboards *colors[2] = { &_white_bitboards, &_black_bitboards };
 
         Bitboard _en_passant = 0;
-
-        Bitboard _white_castling = 0;
-        Bitboard _black_castling = 0;
 
         MoveType _offset_castling_break = MoveType::NONE;
 
