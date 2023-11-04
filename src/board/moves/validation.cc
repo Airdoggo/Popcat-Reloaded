@@ -4,8 +4,9 @@ namespace board
 {
     bool Chessboard::validate_move(Bitboard *moving_piece, Bitboard *target, Bitboard move_start, Bitboard move_end)
     {
-        Bitboard *friend_pieces = _white_turn ? &_whites : &_blacks;
-        Bitboard *enemy_pieces = _white_turn ? &_blacks : &_whites;
+        ColorBitboards *color = _white_turn ? colors[0] : colors[1];
+        Bitboard *friend_pieces = color->_friends;
+        Bitboard *enemy_pieces = color->_enemies;
         Bitboard total_move = move_start | move_end;
 
         *moving_piece ^= total_move;
@@ -18,7 +19,7 @@ namespace board
         }
 
         Bitboard attack_board = get_attack_board();
-        bool result = attack_board & (_white_turn ? _white_king : _black_king);
+        bool result = attack_board & color->_king;
 
         *moving_piece ^= total_move;
         *friend_pieces ^= total_move;
@@ -91,20 +92,21 @@ namespace board
 
     Bitboard Chessboard::get_attack_board()
     {
+        ColorBitboards *color = _white_turn ? colors[1] : colors[0];
         Bitboard blockers = _whites | _blacks;
 
         if (_white_turn)
         {
-            return get_pawn_attacks(_black_pawns, false) | get_knight_attacks(this, _black_knights)
-                | get_king_attacks(this, _black_king)
-                | get_sliding_attacks(this, _black_rooks, blockers, PieceType::ROOK)
-                | get_sliding_attacks(this, _black_bishops, blockers, PieceType::BISHOP)
-                | get_sliding_attacks(this, _black_queen, blockers, PieceType::QUEEN);
+            return get_pawn_attacks(color->_pawns, false) | get_knight_attacks(this, color->_knights)
+                | get_king_attacks(this, color->_king)
+                | get_sliding_attacks(this, color->_rooks, blockers, PieceType::ROOK)
+                | get_sliding_attacks(this, color->_bishops, blockers, PieceType::BISHOP)
+                | get_sliding_attacks(this, color->_queen, blockers, PieceType::QUEEN);
         }
 
-        return get_pawn_attacks(_white_pawns, true) | get_knight_attacks(this, _white_knights)
-            | get_king_attacks(this, _white_king) | get_sliding_attacks(this, _white_rooks, blockers, PieceType::ROOK)
-            | get_sliding_attacks(this, _white_bishops, blockers, PieceType::BISHOP)
-            | get_sliding_attacks(this, _white_queen, blockers, PieceType::QUEEN);
+        return get_pawn_attacks(color->_pawns, true) | get_knight_attacks(this, color->_knights)
+            | get_king_attacks(this, color->_king) | get_sliding_attacks(this, color->_rooks, blockers, PieceType::ROOK)
+            | get_sliding_attacks(this, color->_bishops, blockers, PieceType::BISHOP)
+            | get_sliding_attacks(this, color->_queen, blockers, PieceType::QUEEN);
     }
 } // namespace board

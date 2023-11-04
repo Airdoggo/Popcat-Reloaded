@@ -19,10 +19,14 @@ namespace board
 
         fen_stream >> board >> next_color >> castling >> en_passant >> _halfmoves >> _turn;
 
+        ColorBitboards *whites = colors[0];
+        ColorBitboards *blacks = colors[1];
+
         std::unordered_map<char, Bitboard *> char_to_bitboard = {
-            { 'r', &_black_rooks },   { 'n', &_black_knights }, { 'b', &_black_bishops }, { 'q', &_black_queen },
-            { 'k', &_black_king },    { 'p', &_black_pawns },   { 'R', &_white_rooks },   { 'N', &_white_knights },
-            { 'B', &_white_bishops }, { 'Q', &_white_queen },   { 'K', &_white_king },    { 'P', &_white_pawns }
+            { 'r', &blacks->_rooks }, { 'n', &blacks->_knights }, { 'b', &blacks->_bishops },
+            { 'q', &blacks->_queen }, { 'k', &blacks->_king },    { 'p', &blacks->_pawns },
+            { 'R', &whites->_rooks }, { 'N', &whites->_knights }, { 'B', &whites->_bishops },
+            { 'Q', &whites->_queen }, { 'K', &whites->_king },    { 'P', &whites->_pawns }
         };
 
         int file = 1;
@@ -43,21 +47,28 @@ namespace board
                 (*char_to_bitboard[c]) |= (1ULL << ((rank - 1) * 8 + (file++ - 1)));
         }
 
-        _whites = _white_pawns | _white_rooks | _white_knights | _white_bishops | _white_queen | _white_king;
-        _blacks = _black_pawns | _black_rooks | _black_knights | _black_bishops | _black_queen | _black_king;
+        _whites =
+            whites->_pawns | whites->_rooks | whites->_knights | whites->_bishops | whites->_queen | whites->_king;
+        _blacks =
+            blacks->_pawns | blacks->_rooks | blacks->_knights | blacks->_bishops | blacks->_queen | blacks->_king;
+
+        whites->_friends = &_whites;
+        whites->_enemies = &_blacks;
+        blacks->_friends = &_blacks;
+        blacks->_enemies = &_whites;
 
         _white_turn = next_color[0] == 'w';
 
         if (castling[0] != '-')
         {
             if (castling.find('K') != std::string::npos)
-                _white_castling |= WK_CASTLING;
+                whites->_castling |= WK_CASTLING;
             if (castling.find('Q') != std::string::npos)
-                _white_castling |= WQ_CASTLING;
+                whites->_castling |= WQ_CASTLING;
             if (castling.find('k') != std::string::npos)
-                _black_castling |= BK_CASTLING;
+                blacks->_castling |= BK_CASTLING;
             if (castling.find('q') != std::string::npos)
-                _black_castling |= BQ_CASTLING;
+                blacks->_castling |= BQ_CASTLING;
         }
 
         if (en_passant != "-")
@@ -85,17 +96,18 @@ namespace board
 
     void Chessboard::do_move(const Move &move)
     {
+        ColorBitboards *color = move.is_white ? colors[0] : colors[1];
+
         if (move.type & MoveType::PROMOTION)
         {
-            Bitboard *friend_pieces = _white_turn ? &_whites : &_blacks;
-            Bitboard *enemy_pieces = _white_turn ? &_blacks : &_whites;
+            Bitboard *friend_pieces = color->_friends;
+            Bitboard *enemy_pieces = color->_enemies;
 
             // Absolutely horrible, to change ASAP
-            Bitboard *promotion_board = move.type & MoveType::PROMOTION_KNIGHT
-                ? (move.is_white ? &_white_knights : &_black_knights)
-                : move.type & MoveType::PROMOTION_BISHOP ? (move.is_white ? &_white_bishops : &_black_bishops)
-                : move.type & MoveType::PROMOTION_ROOK   ? (move.is_white ? &_white_rooks : &_black_rooks)
-                                                         : (move.is_white ? &_white_queen : &_black_queen);
+            Bitboard *promotion_board = move.type & MoveType::PROMOTION_KNIGHT ? &color->_knights
+                : move.type & MoveType::PROMOTION_BISHOP                       ? &color->_bishops
+                : move.type & MoveType::PROMOTION_ROOK                         ? &color->_rooks
+                                                                               : &color->_queen;
 
             Bitboard move_start = (*move.piece_board) & move.bitboard_move;
             Bitboard move_end = move_start ? move.bitboard_move ^ move_start : (*promotion_board) & move.bitboard_move;
@@ -113,8 +125,8 @@ namespace board
         }
         else if (move.type & MoveType::CASTLING)
         {
-            Bitboard *friend_pieces = _white_turn ? &_whites : &_blacks;
-            Bitboard *rook_board = move.is_white ? &_white_rooks : &_black_rooks;
+            Bitboard *friend_pieces = color->_friends;
+            Bitboard *rook_board = &color->_rooks;
 
             *(move.piece_board) ^= move.bitboard_move;
 
@@ -133,7 +145,7 @@ namespace board
 
             if (move.type & MoveType::BREAK_BOTH_CASTLING)
             {
-                Bitboard *castling = move.is_white ? &_white_castling : &_black_castling;
+                Bitboard *castling = &color->_castling;
 
                 if (move.type & MoveType::BREAK_CASTLING_KING)
                 {
@@ -147,8 +159,8 @@ namespace board
         }
         else
         {
-            Bitboard *friend_pieces = _white_turn ? &_whites : &_blacks;
-            Bitboard *enemy_pieces = _white_turn ? &_blacks : &_whites;
+            Bitboard *friend_pieces = color->_friends;
+            Bitboard *enemy_pieces = color->_enemies;
 
             *move.piece_board ^= move.bitboard_move;
             *friend_pieces ^= move.bitboard_move;
@@ -176,7 +188,7 @@ namespace board
 
             if (move.type & MoveType::BREAK_BOTH_CASTLING)
             {
-                Bitboard *castling = move.is_white ? &_white_castling : &_black_castling;
+                Bitboard *castling = &color->_castling;
 
                 if (move.type & MoveType::BREAK_CASTLING_KING)
                 {
@@ -196,35 +208,36 @@ namespace board
 
     Bitboard *Chessboard::get_board_at_position(Bitboard position, bool is_white)
     {
+        ColorBitboards *color = is_white ? colors[0] : colors[1];
         if (is_white)
         {
-            if (position & _white_pawns)
-                return &_white_pawns;
-            else if (position & _white_rooks)
-                return &_white_rooks;
-            else if (position & _white_knights)
-                return &_white_knights;
-            else if (position & _white_bishops)
-                return &_white_bishops;
-            else if (position & _white_queen)
-                return &_white_queen;
+            if (position & color->_pawns)
+                return &color->_pawns;
+            else if (position & color->_rooks)
+                return &color->_rooks;
+            else if (position & color->_knights)
+                return &color->_knights;
+            else if (position & color->_bishops)
+                return &color->_bishops;
+            else if (position & color->_queen)
+                return &color->_queen;
             else
-                return &_white_king;
+                return &color->_king;
         }
         else
         {
-            if (position & _black_pawns)
-                return &_black_pawns;
-            else if (position & _black_rooks)
-                return &_black_rooks;
-            else if (position & _black_knights)
-                return &_black_knights;
-            else if (position & _black_bishops)
-                return &_black_bishops;
-            else if (position & _black_queen)
-                return &_black_queen;
+            if (position & color->_pawns)
+                return &color->_pawns;
+            else if (position & color->_rooks)
+                return &color->_rooks;
+            else if (position & color->_knights)
+                return &color->_knights;
+            else if (position & color->_bishops)
+                return &color->_bishops;
+            else if (position & color->_queen)
+                return &color->_queen;
             else
-                return &_black_queen;
+                return &color->_king;
         }
     }
 
@@ -232,9 +245,12 @@ namespace board
     {
         int board[64] = { 0 };
         char icons[13] = { '.', 'P', 'K', 'Q', 'R', 'B', 'N', 'p', 'k', 'q', 'r', 'b', 'n' };
-        Bitboard bitboards[12] = { _white_pawns,   _white_king,    _white_queen,   _white_rooks,
-                                   _white_bishops, _white_knights, _black_pawns,   _black_king,
-                                   _black_queen,   _black_rooks,   _black_bishops, _black_knights };
+
+        ColorBitboards *whites = colors[0];
+        ColorBitboards *blacks = colors[1];
+        Bitboard bitboards[12] = { whites->_pawns,   whites->_king,    whites->_queen,   whites->_rooks,
+                                   whites->_bishops, whites->_knights, blacks->_pawns,   blacks->_king,
+                                   blacks->_queen,   blacks->_rooks,   blacks->_bishops, blacks->_knights };
         unsigned long index;
 
         for (unsigned i = 0; i < 12; i++)

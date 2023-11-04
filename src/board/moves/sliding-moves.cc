@@ -4,17 +4,18 @@ namespace board
 {
     void Chessboard::generate_sliding_moves(std::vector<Move> &moves, PieceType type)
     {
+        ColorBitboards *color = _white_turn ? colors[0] : colors[1];
         Bitboard *friendly_pieces;
         switch (type)
         {
         case BISHOP:
-            friendly_pieces = _white_turn ? &_white_bishops : &_black_bishops;
+            friendly_pieces = &color->_bishops;
             break;
         case ROOK:
-            friendly_pieces = _white_turn ? &_white_rooks : &_black_rooks;
+            friendly_pieces = &color->_rooks;
             break;
         case QUEEN:
-            friendly_pieces = _white_turn ? &_white_queen : &_black_queen;
+            friendly_pieces = &color->_queen;
             break;
         default:
             return;
@@ -22,8 +23,8 @@ namespace board
 
         Bitboard pieces = *friendly_pieces;
         Bitboard blockers = _whites | _blacks;
-        Bitboard movable = _white_turn ? ~_whites : ~_blacks;
-        Bitboard enemies = _white_turn ? _blacks : _whites;
+        Bitboard movable = ~(*color->_friends);
+        Bitboard enemies = *color->_enemies;
         unsigned long index;
 
         while (_BitScanForward64(&index, pieces))
@@ -55,7 +56,7 @@ namespace board
 
             if (type == PieceType::ROOK)
             {
-                Bitboard castling = _white_turn ? _white_castling : _black_castling;
+                Bitboard castling = color->_castling;
                 if (castling)
                 {
                     if (castling & Q_CASTLING
