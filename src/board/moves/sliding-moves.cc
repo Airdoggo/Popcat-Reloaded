@@ -2,7 +2,7 @@
 
 namespace board
 {
-    void Chessboard::generate_sliding_moves(std::vector<Move> &moves, PieceType type)
+    void Chessboard::generate_sliding_moves(std::vector<Move> &moves, SlidingPieceType type)
     {
         ColorBitboards *color = _white_turn ? colors[0] : colors[1];
         Bitboard *friendly_pieces;
@@ -14,11 +14,9 @@ namespace board
         case ROOK:
             friendly_pieces = &color->_rooks;
             break;
-        case QUEEN:
+        default:
             friendly_pieces = &color->_queen;
             break;
-        default:
-            return;
         }
 
         Bitboard pieces = *friendly_pieces;
@@ -32,7 +30,7 @@ namespace board
             Bitboard position = 1ULL << index;
             Bitboard moves_table = 0x0;
 
-            if (type & ROOK)
+            if (type & SlidingPieceType::ROOK)
             {
                 Bitboard masked_blockers = tables.rook_masks[index] & blockers;
                 Bitboard magic_number = tables.rook_magic_number[index];
@@ -41,7 +39,7 @@ namespace board
                 moves_table |= tables.rook_attack_table[index][key];
             }
 
-            if (type & BISHOP)
+            if (type & SlidingPieceType::BISHOP)
             {
                 Bitboard masked_blockers = tables.bishop_masks[index] & blockers;
                 Bitboard magic_number = tables.bishop_magic_number[index];
@@ -54,7 +52,7 @@ namespace board
 
             MoveType move_type = MoveType::NONE;
 
-            if (type == PieceType::ROOK)
+            if (type == SlidingPieceType::ROOK)
             {
                 Bitboard castling = color->_castling;
                 if (castling)
