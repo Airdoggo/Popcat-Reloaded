@@ -14,17 +14,17 @@ namespace board
 {
     struct ColorBitboards
     {
-        Bitboard _bishops = 0;
-        Bitboard _king = 0;
-        Bitboard _knights = 0;
-        Bitboard _pawns = 0;
-        Bitboard _queen = 0;
-        Bitboard _rooks = 0;
+        Bitboard bishops = 0;
+        Bitboard king = 0;
+        Bitboard knights = 0;
+        Bitboard pawns = 0;
+        Bitboard queen = 0;
+        Bitboard rooks = 0;
 
-        Bitboard _castling = 0;
+        Bitboard castling = 0;
 
-        Bitboard *_friends;
-        Bitboard *_enemies;
+        Bitboard *friends;
+        Bitboard *enemies;
     };
 
     enum SlidingPieceType

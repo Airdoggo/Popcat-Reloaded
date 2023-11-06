@@ -9,20 +9,20 @@ namespace board
         switch (type)
         {
         case BISHOP:
-            friendly_pieces = &color->_bishops;
+            friendly_pieces = &color->bishops;
             break;
         case ROOK:
-            friendly_pieces = &color->_rooks;
+            friendly_pieces = &color->rooks;
             break;
         default:
-            friendly_pieces = &color->_queen;
+            friendly_pieces = &color->queen;
             break;
         }
 
         Bitboard pieces = *friendly_pieces;
         Bitboard blockers = _whites | _blacks;
-        Bitboard movable = ~(*color->_friends);
-        Bitboard enemies = *color->_enemies;
+        Bitboard movable = ~(*color->friends);
+        Bitboard enemies = *color->enemies;
         unsigned long index;
 
         while (_BitScanForward64(&index, pieces))
@@ -54,7 +54,7 @@ namespace board
 
             if (type == SlidingPieceType::ROOK)
             {
-                Bitboard castling = color->_castling;
+                Bitboard castling = color->castling;
                 if (castling)
                 {
                     if (castling & Q_CASTLING
