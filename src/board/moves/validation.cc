@@ -95,16 +95,7 @@ namespace board
         ColorBitboards *color = _white_turn ? colors[1] : colors[0];
         Bitboard blockers = _whites | _blacks;
 
-        if (_white_turn)
-        {
-            return get_pawn_attacks(color->_pawns, false) | get_knight_attacks(this, color->_knights)
-                | get_king_attacks(this, color->_king)
-                | get_sliding_attacks(this, color->_rooks, blockers, PieceType::ROOK)
-                | get_sliding_attacks(this, color->_bishops, blockers, PieceType::BISHOP)
-                | get_sliding_attacks(this, color->_queen, blockers, PieceType::QUEEN);
-        }
-
-        return get_pawn_attacks(color->_pawns, true) | get_knight_attacks(this, color->_knights)
+        return get_pawn_attacks(color->_pawns, !_white_turn) | get_knight_attacks(this, color->_knights)
             | get_king_attacks(this, color->_king) | get_sliding_attacks(this, color->_rooks, blockers, PieceType::ROOK)
             | get_sliding_attacks(this, color->_bishops, blockers, PieceType::BISHOP)
             | get_sliding_attacks(this, color->_queen, blockers, PieceType::QUEEN);

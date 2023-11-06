@@ -209,36 +209,19 @@ namespace board
     Bitboard *Chessboard::get_board_at_position(Bitboard position, bool is_white)
     {
         ColorBitboards *color = is_white ? colors[0] : colors[1];
-        if (is_white)
-        {
-            if (position & color->_pawns)
-                return &color->_pawns;
-            else if (position & color->_rooks)
-                return &color->_rooks;
-            else if (position & color->_knights)
-                return &color->_knights;
-            else if (position & color->_bishops)
-                return &color->_bishops;
-            else if (position & color->_queen)
-                return &color->_queen;
-            else
-                return &color->_king;
-        }
+
+        if (position & color->_pawns)
+            return &color->_pawns;
+        else if (position & color->_rooks)
+            return &color->_rooks;
+        else if (position & color->_knights)
+            return &color->_knights;
+        else if (position & color->_bishops)
+            return &color->_bishops;
+        else if (position & color->_queen)
+            return &color->_queen;
         else
-        {
-            if (position & color->_pawns)
-                return &color->_pawns;
-            else if (position & color->_rooks)
-                return &color->_rooks;
-            else if (position & color->_knights)
-                return &color->_knights;
-            else if (position & color->_bishops)
-                return &color->_bishops;
-            else if (position & color->_queen)
-                return &color->_queen;
-            else
-                return &color->_king;
-        }
+            return &color->_king;
     }
 
     void Chessboard::pretty_print() const

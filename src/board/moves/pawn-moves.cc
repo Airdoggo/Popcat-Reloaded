@@ -116,38 +116,29 @@ namespace board
         ColorBitboards *color = _white_turn ? colors[0] : colors[1];
 
         Bitboard empty = ~(_whites | _blacks);
+        Bitboard enemy_pieces = (*color->_enemies) | _en_passant;
+
+        Bitboard single_push, double_push, east_attacks, west_attacks;
 
         if (_white_turn)
         {
-            Bitboard single_push = (color->_pawns << 8) & empty;
+            single_push = (color->_pawns << 8) & empty;
+            double_push = (single_push << 8) & empty & RANK4;
 
-            Bitboard double_push = (single_push << 8) & empty & RANK4;
-
-            generate_pawn_push_moves(moves, single_push, double_push, &color->_pawns);
-
-            Bitboard enemy_pieces = (*color->_enemies) | _en_passant;
-
-            Bitboard east_attacks = (color->_pawns << 9) & NOTFILEA & enemy_pieces;
-            Bitboard west_attacks = (color->_pawns << 7) & NOTFILEH & enemy_pieces;
-
-            generate_pawn_attack_moves(moves, east_attacks, &color->_pawns, true);
-            generate_pawn_attack_moves(moves, west_attacks, &color->_pawns, false);
+            east_attacks = (color->_pawns << 9) & NOTFILEA & enemy_pieces;
+            west_attacks = (color->_pawns << 7) & NOTFILEH & enemy_pieces;
         }
         else
         {
-            Bitboard single_push = (color->_pawns >> 8) & empty;
+            single_push = (color->_pawns >> 8) & empty;
+            double_push = (single_push >> 8) & empty & RANK5;
 
-            Bitboard double_push = (single_push >> 8) & empty & RANK5;
-
-            generate_pawn_push_moves(moves, single_push, double_push, &color->_pawns);
-
-            Bitboard enemy_pieces = (*color->_enemies) | _en_passant;
-
-            Bitboard east_attacks = (color->_pawns >> 7) & NOTFILEA & enemy_pieces;
-            Bitboard west_attacks = (color->_pawns >> 9) & NOTFILEH & enemy_pieces;
-
-            generate_pawn_attack_moves(moves, east_attacks, &color->_pawns, true);
-            generate_pawn_attack_moves(moves, west_attacks, &color->_pawns, false);
+            east_attacks = (color->_pawns >> 7) & NOTFILEA & enemy_pieces;
+            west_attacks = (color->_pawns >> 9) & NOTFILEH & enemy_pieces;
         }
+
+        generate_pawn_push_moves(moves, single_push, double_push, &color->_pawns);
+        generate_pawn_attack_moves(moves, east_attacks, &color->_pawns, true);
+        generate_pawn_attack_moves(moves, west_attacks, &color->_pawns, false);
     }
 } // namespace board
