@@ -6,7 +6,6 @@
 
 #include "constants.hh"
 #include "moves/move.hh"
-#include "moves/piece-type.hh"
 #include "moves/tables.hh"
 
 typedef unsigned long long Bitboard;
@@ -26,6 +25,13 @@ namespace board
 
         Bitboard *_friends;
         Bitboard *_enemies;
+    };
+
+    enum SlidingPieceType
+    {
+        ROOK = 0b1,
+        BISHOP = 0b10,
+        QUEEN = ROOK | BISHOP,
     };
 
     class Chessboard final
@@ -69,7 +75,7 @@ namespace board
         void generate_pawn_moves(std::vector<Move> &moves);
         void generate_king_moves(std::vector<Move> &moves);
         void generate_knight_moves(std::vector<Move> &moves);
-        void generate_sliding_moves(std::vector<Move> &moves, PieceType type);
+        void generate_sliding_moves(std::vector<Move> &moves, SlidingPieceType type);
 
         void generate_pawn_push_moves(std::vector<Move> &moves, Bitboard single_moves_bitboard,
                                       Bitboard double_moves_bitboard, Bitboard *piece_board);

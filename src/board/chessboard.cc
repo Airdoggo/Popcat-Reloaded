@@ -79,9 +79,9 @@ namespace board
     {
         generate_pawn_moves(moves);
         generate_king_moves(moves);
-        generate_sliding_moves(moves, PieceType::ROOK);
-        generate_sliding_moves(moves, PieceType::BISHOP);
-        generate_sliding_moves(moves, PieceType::QUEEN);
+        generate_sliding_moves(moves, SlidingPieceType::ROOK);
+        generate_sliding_moves(moves, SlidingPieceType::BISHOP);
+        generate_sliding_moves(moves, SlidingPieceType::QUEEN);
         generate_knight_moves(moves);
 
         // If the opponent broke a castling opportunity

@@ -60,14 +60,15 @@ namespace board
         return board->tables.king[index];
     }
 
-    inline static Bitboard get_sliding_attacks(Chessboard *board, Bitboard pieces, Bitboard blockers, PieceType type)
+    inline static Bitboard get_sliding_attacks(Chessboard *board, Bitboard pieces, Bitboard blockers,
+                                               SlidingPieceType type)
     {
         unsigned long index;
         Bitboard result = 0x0;
 
         while (_BitScanForward64(&index, pieces))
         {
-            if (type & PieceType::ROOK)
+            if (type & SlidingPieceType::ROOK)
             {
                 Bitboard masked_blockers = board->tables.rook_masks[index] & blockers;
                 Bitboard magic_number = board->tables.rook_magic_number[index];
@@ -75,7 +76,7 @@ namespace board
 
                 result |= board->tables.rook_attack_table[index][key];
             }
-            if (type & PieceType::BISHOP)
+            if (type & SlidingPieceType::BISHOP)
             {
                 Bitboard masked_blockers = board->tables.bishop_masks[index] & blockers;
                 Bitboard magic_number = board->tables.bishop_magic_number[index];
@@ -96,8 +97,9 @@ namespace board
         Bitboard blockers = _whites | _blacks;
 
         return get_pawn_attacks(color->_pawns, !_white_turn) | get_knight_attacks(this, color->_knights)
-            | get_king_attacks(this, color->_king) | get_sliding_attacks(this, color->_rooks, blockers, PieceType::ROOK)
-            | get_sliding_attacks(this, color->_bishops, blockers, PieceType::BISHOP)
-            | get_sliding_attacks(this, color->_queen, blockers, PieceType::QUEEN);
+            | get_king_attacks(this, color->_king)
+            | get_sliding_attacks(this, color->_rooks, blockers, SlidingPieceType::ROOK)
+            | get_sliding_attacks(this, color->_bishops, blockers, SlidingPieceType::BISHOP)
+            | get_sliding_attacks(this, color->_queen, blockers, SlidingPieceType::QUEEN);
     }
 } // namespace board
