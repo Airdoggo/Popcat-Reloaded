@@ -33,6 +33,12 @@ namespace board
         return !result;
     }
 
+    bool Chessboard::is_in_check()
+    {
+        Bitboard attack_board = get_attack_board();
+        return attack_board & (_white_turn ? _white_bitboards.king : _black_bitboards.king);
+    }
+
     inline static Bitboard get_pawn_attacks(Bitboard pawns, bool white_pawns)
     {
         return (((white_pawns ? pawns << 9 : pawns >> 7) & NOTFILEA)

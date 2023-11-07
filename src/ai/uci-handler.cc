@@ -3,6 +3,8 @@
 #include <iostream>
 #include <sstream>
 
+#include "ai.hh"
+
 namespace ai
 {
     static constexpr char STARTPOS[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
@@ -68,9 +70,20 @@ namespace ai
         bool from_startpos = command[1] == "startpos";
 
         if (_moves_offset == 0)
-            _board.set_board_from_fen(from_startpos ? STARTPOS : command[2]);
+        {
+            if (from_startpos)
+                _board.set_board_from_fen(STARTPOS);
+            else
+            {
+                std::string fen_string = command[2];
+                for (int i = 3; i < 8; i++)
+                    fen_string += " " + command[i];
 
-        for (size_t i = (from_startpos ? 3 : 4) + _moves_offset; i < command.size(); i++)
+                _board.set_board_from_fen(fen_string);
+            }
+        }
+
+        for (size_t i = (from_startpos ? 3 : 9) + _moves_offset; i < command.size(); i++)
         {
             _board.do_move(command[i]);
             _moves_offset++;
@@ -82,7 +95,9 @@ namespace ai
         std::vector<board::Move> moves;
         _board.generate_legal_moves(moves);
 
-        std::cout << "bestmove " << moves[rand() % moves.size()].to_string() << std::endl;
+        std::string result = search(&_board, 5);
+
+        std::cout << "bestmove " << result << std::endl;
     }
 
     void UCIHandler::handle_ucinewgame_command()

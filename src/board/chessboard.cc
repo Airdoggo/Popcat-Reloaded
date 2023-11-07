@@ -19,6 +19,8 @@ namespace board
 
     void Chessboard::set_board_from_fen(const std::string &fen_string)
     {
+        reset_board();
+
         std::stringstream fen_stream(fen_string);
         std::string board, next_color, castling, en_passant;
 
@@ -75,6 +77,28 @@ namespace board
 
         if (en_passant != "-")
             _en_passant = 1ULL << (en_passant[0] - 'a' + (en_passant[1] - '1') * 8);
+    }
+
+    void Chessboard::reset_board()
+    {
+        _whites = 0;
+        _blacks = 0;
+
+        _white_bitboards.pawns = 0;
+        _white_bitboards.rooks = 0;
+        _white_bitboards.bishops = 0;
+        _white_bitboards.knights = 0;
+        _white_bitboards.queen = 0;
+        _white_bitboards.king = 0;
+        _white_bitboards.castling = 0;
+
+        _black_bitboards.pawns = 0;
+        _black_bitboards.rooks = 0;
+        _black_bitboards.bishops = 0;
+        _black_bitboards.knights = 0;
+        _black_bitboards.queen = 0;
+        _black_bitboards.king = 0;
+        _black_bitboards.castling = 0;
     }
 
     void Chessboard::generate_legal_moves(std::vector<Move> &moves)

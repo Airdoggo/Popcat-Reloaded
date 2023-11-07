@@ -37,8 +37,6 @@ namespace board
     class Chessboard final
     {
     public:
-        Tables tables;
-
         Chessboard();
         Chessboard(const std::string &fen_string);
 
@@ -55,20 +53,23 @@ namespace board
         Bitboard *get_board_at_position(Bitboard position, bool is_white);
 
         bool validate_move(Bitboard *moving_piece, Bitboard *target, Bitboard move_start, Bitboard move_end);
+        bool is_in_check();
+
+        Tables tables;
+
+        ColorBitboards *colors[2] = { &_white_bitboards, &_black_bitboards };
+
+        bool _white_turn = true;
 
     private:
         unsigned _turn = 0;
         unsigned _halfmoves = 0;
-
-        bool _white_turn = true;
 
         Bitboard _whites = 0;
         Bitboard _blacks = 0;
 
         ColorBitboards _white_bitboards;
         ColorBitboards _black_bitboards;
-
-        ColorBitboards *colors[2] = { &_white_bitboards, &_black_bitboards };
 
         Bitboard _en_passant = 0;
 
@@ -86,6 +87,8 @@ namespace board
                                         bool east_attacks);
 
         Bitboard get_attack_board();
+
+        void reset_board();
     };
 } // namespace board
 
