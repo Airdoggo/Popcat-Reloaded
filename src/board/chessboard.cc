@@ -14,6 +14,11 @@ namespace board
 
     Chessboard::Chessboard(const std::string &fen_string)
     {
+        set_board_from_fen(fen_string);
+    }
+
+    void Chessboard::set_board_from_fen(const std::string &fen_string)
+    {
         std::stringstream fen_stream(fen_string);
         std::string board, next_color, castling, en_passant;
 
@@ -201,6 +206,23 @@ namespace board
         _en_passant ^= (move.type & MoveType::PASSING)
             ? move.en_passant | (move.bitboard_move << 8 & move.bitboard_move >> 8)
             : move.en_passant;
+    }
+
+    void Chessboard::do_move(const std::string &code)
+    {
+        std::vector<Move> moves;
+        generate_legal_moves(moves);
+
+        for (const Move &move : moves)
+        {
+            if (move.to_string() == code)
+            {
+                do_move(move);
+                break;
+            }
+        }
+
+        switch_turn();
     }
 
     Bitboard *Chessboard::get_board_at_position(Bitboard position, bool is_white)

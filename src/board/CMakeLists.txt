@@ -8,6 +8,7 @@ add_library(board
     "moves/sliding-moves.cc"
     "moves/validation.cc"
     "moves/tables.cc"
+    "moves/move.cc"
 )
 
 target_include_directories(board PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")

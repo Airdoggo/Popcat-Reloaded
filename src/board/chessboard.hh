@@ -42,11 +42,14 @@ namespace board
         Chessboard();
         Chessboard(const std::string &fen_string);
 
+        void set_board_from_fen(const std::string &fen_string);
+
         void pretty_print() const;
         void print_bitboard(Bitboard bitboard) const;
 
         void generate_legal_moves(std::vector<Move> &moves);
         void do_move(const Move &move);
+        void do_move(const std::string &code);
         void switch_turn();
 
         Bitboard *get_board_at_position(Bitboard position, bool is_white);
