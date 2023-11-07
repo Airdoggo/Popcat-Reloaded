@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 typedef unsigned long long Bitboard;
 
 namespace board
@@ -39,5 +41,7 @@ namespace board
         MoveType type = MoveType::NONE;
 
         int move_score = 0;
+
+        std::string to_string() const;
     };
 } // namespace board

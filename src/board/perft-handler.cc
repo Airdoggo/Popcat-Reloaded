@@ -57,25 +57,6 @@ namespace board
         return nb_moves;
     }
 
-    static std::string move_to_string(const Move &move)
-    {
-        std::string result = "";
-        Bitboard move_start = move.bitboard_move & (*move.piece_board);
-        Bitboard move_end = move.bitboard_move ^ move_start;
-
-        unsigned long index;
-
-        _BitScanForward64(&index, move_start);
-        result += 'a' + (char)(index % 8);
-        result += '1' + (char)(index / 8);
-
-        _BitScanForward64(&index, move_end);
-        result += 'a' + (char)(index % 8);
-        result += '1' + (char)(index / 8);
-
-        return result;
-    }
-
     size_t PerftHandler::run_verbose_perft(Chessboard &board, unsigned depth, std::string moves_history)
     {
         std::vector<Move> moves;
@@ -92,7 +73,7 @@ namespace board
 
         for (const Move &move : moves)
         {
-            std::string new_history = moves_history + (moves_history.empty() ? "" : " ") + move_to_string(move);
+            std::string new_history = moves_history + (moves_history.empty() ? "" : " ") + move.to_string();
 
             board.do_move(move);
             board.switch_turn();
