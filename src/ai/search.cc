@@ -1,11 +1,21 @@
 #include "ai.hh"
 
+#define COUNT 1
+
 namespace ai
 {
     static constexpr int MIN_SCORE = INT_MIN + 100;
 
+#ifdef COUNT
+    static int count = 0;
+#endif
+
     static int evaluate_move(board::Chessboard *board, int depth, int alpha, int beta)
     {
+#ifdef COUNT
+        count++;
+#endif
+
         std::vector<board::Move> moves;
         board->generate_legal_moves(moves);
 
@@ -74,6 +84,10 @@ namespace ai
             board->switch_turn();
             board->do_move(move);
         }
+
+#ifdef COUNT
+        std::cout << "Total nodes searched: " << count << std::endl;
+#endif
 
         return best_move.to_string();
     }
