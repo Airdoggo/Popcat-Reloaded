@@ -62,6 +62,10 @@ namespace ai
 
     std::string search(board::Chessboard *board, int depth)
     {
+#ifdef COUNT
+        count = 0;
+#endif
+
         std::vector<board::Move> moves;
         board->generate_legal_moves(moves);
 
@@ -86,7 +90,7 @@ namespace ai
         }
 
 #ifdef COUNT
-        std::cout << "Total nodes searched: " << count << std::endl;
+        std::cout << "Total nodes searched: " << count << ", score: " << best_score << std::endl;
 #endif
 
         return best_move.to_string();
