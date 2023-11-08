@@ -4,7 +4,7 @@ namespace board
 {
     bool Chessboard::validate_move(Bitboard *moving_piece, Bitboard *target, Bitboard move_start, Bitboard move_end)
     {
-        ColorBitboards *color = _white_turn ? colors[0] : colors[1];
+        ColorBitboards *color = white_turn ? colors[0] : colors[1];
         Bitboard *friend_pieces = color->friends;
         Bitboard *enemy_pieces = color->enemies;
         Bitboard total_move = move_start | move_end;
@@ -36,7 +36,7 @@ namespace board
     bool Chessboard::is_in_check()
     {
         Bitboard attack_board = get_attack_board();
-        return attack_board & (_white_turn ? _white_bitboards.king : _black_bitboards.king);
+        return attack_board & (white_turn ? _white_bitboards.king : _black_bitboards.king);
     }
 
     inline static Bitboard get_pawn_attacks(Bitboard pawns, bool white_pawns)
@@ -99,10 +99,10 @@ namespace board
 
     Bitboard Chessboard::get_attack_board()
     {
-        ColorBitboards *color = _white_turn ? colors[1] : colors[0];
+        ColorBitboards *color = white_turn ? colors[1] : colors[0];
         Bitboard blockers = _whites | _blacks;
 
-        return get_pawn_attacks(color->pawns, !_white_turn) | get_knight_attacks(this, color->knights)
+        return get_pawn_attacks(color->pawns, !white_turn) | get_knight_attacks(this, color->knights)
             | get_king_attacks(this, color->king)
             | get_sliding_attacks(this, color->rooks, blockers, SlidingPieceType::ROOK)
             | get_sliding_attacks(this, color->bishops, blockers, SlidingPieceType::BISHOP)

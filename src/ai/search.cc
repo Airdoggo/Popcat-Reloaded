@@ -32,7 +32,7 @@ namespace ai
         for (const board::Move &move : moves)
         {
             board->do_move(move);
-            board->switch_turn();
+            board->white_turn ^= true;
 
             int eval;
 
@@ -51,7 +51,7 @@ namespace ai
                 eval = -evaluate_move(board, depth - 1, -beta, -alpha);
             }
 
-            board->switch_turn();
+            board->white_turn ^= true;
             board->do_move(move);
 
             if (eval >= beta)
@@ -86,7 +86,7 @@ namespace ai
 #endif
 
             board->do_move(move);
-            board->switch_turn();
+            board->white_turn ^= true;
 
             int eval = -evaluate_move(board, depth, MIN_SCORE, -best_score);
 
@@ -96,7 +96,7 @@ namespace ai
                 best_move = move;
             }
 
-            board->switch_turn();
+            board->white_turn ^= true;
             board->do_move(move);
         }
 

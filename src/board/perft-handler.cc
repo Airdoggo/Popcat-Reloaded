@@ -46,11 +46,11 @@ namespace board
         for (const Move &move : moves)
         {
             board.do_move(move);
-            board.switch_turn();
+            board.white_turn ^= true;
 
             nb_moves += run_perft(board, depth - 1);
 
-            board.switch_turn();
+            board.white_turn ^= true;
             board.do_move(move);
         }
 
@@ -76,14 +76,14 @@ namespace board
             std::string new_history = moves_history + (moves_history.empty() ? "" : " ") + move.to_string();
 
             board.do_move(move);
-            board.switch_turn();
+            board.white_turn ^= true;
 
             size_t perft_result = run_verbose_perft(board, depth - 1, new_history);
             nb_moves += perft_result;
 
             std::cout << new_history << " " << perft_result << std::endl;
 
-            board.switch_turn();
+            board.white_turn ^= true;
             board.do_move(move);
         }
 

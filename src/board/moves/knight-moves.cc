@@ -5,7 +5,7 @@ namespace board
 {
     void Chessboard::generate_knight_moves(std::vector<Move> &moves)
     {
-        ColorBitboards *color = _white_turn ? colors[0] : colors[1];
+        ColorBitboards *color = white_turn ? colors[0] : colors[1];
         Bitboard *friendly_knights = &color->knights;
         Bitboard knights = *friendly_knights;
         Bitboard movable = ~(*color->friends);
@@ -21,11 +21,11 @@ namespace board
             while (_BitScanForward64(&index, moves_table))
             {
                 Bitboard move = 1ULL << index;
-                Bitboard *enemy = (move & enemies) ? get_board_at_position(move, !_white_turn) : nullptr;
+                Bitboard *enemy = (move & enemies) ? get_board_at_position(move, !white_turn) : nullptr;
 
                 if (validate_move(friendly_knights, enemy, knight_position, move))
                     moves.push_back(
-                        { move | knight_position, friendly_knights, enemy, _en_passant, _white_turn, MoveType::NONE });
+                        { move | knight_position, friendly_knights, enemy, _en_passant, white_turn, MoveType::NONE });
 
                 moves_table ^= move;
             }

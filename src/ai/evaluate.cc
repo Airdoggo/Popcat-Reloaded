@@ -20,6 +20,6 @@ namespace ai
         board::ColorBitboards *whites = board->colors[0];
         board::ColorBitboards *blacks = board->colors[1];
 
-        return (get_material_value(whites) - get_material_value(blacks)) * (board->_white_turn ? 1 : -1);
+        return (get_material_value(whites) - get_material_value(blacks)) * (board->white_turn ? 1 : -1);
     }
 } // namespace ai

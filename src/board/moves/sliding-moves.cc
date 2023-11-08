@@ -4,7 +4,7 @@ namespace board
 {
     void Chessboard::generate_sliding_moves(std::vector<Move> &moves, SlidingPieceType type)
     {
-        ColorBitboards *color = _white_turn ? colors[0] : colors[1];
+        ColorBitboards *color = white_turn ? colors[0] : colors[1];
         Bitboard *friendly_pieces;
         switch (type)
         {
@@ -58,10 +58,10 @@ namespace board
                 if (castling)
                 {
                     if (castling & Q_CASTLING
-                        && position & (_white_turn ? WRQ_CASTLING_START_POSITION : BRQ_CASTLING_START_POSITION))
+                        && position & (white_turn ? WRQ_CASTLING_START_POSITION : BRQ_CASTLING_START_POSITION))
                         move_type = MoveType::BREAK_CASTLING_QUEEN;
                     else if (castling & K_CASTLING
-                             && position & (_white_turn ? WRK_CASTLING_START_POSITION : BRK_CASTLING_START_POSITION))
+                             && position & (white_turn ? WRK_CASTLING_START_POSITION : BRK_CASTLING_START_POSITION))
                         move_type = MoveType::BREAK_CASTLING_KING;
                 }
             }
@@ -69,10 +69,10 @@ namespace board
             while (_BitScanForward64(&index, moves_table))
             {
                 Bitboard move = 1ULL << index;
-                Bitboard *enemy = (move & enemies) ? get_board_at_position(move, !_white_turn) : nullptr;
+                Bitboard *enemy = (move & enemies) ? get_board_at_position(move, !white_turn) : nullptr;
 
                 if (validate_move(friendly_pieces, enemy, position, move))
-                    moves.push_back({ move | position, friendly_pieces, enemy, _en_passant, _white_turn, move_type });
+                    moves.push_back({ move | position, friendly_pieces, enemy, _en_passant, white_turn, move_type });
 
                 moves_table ^= move;
             }

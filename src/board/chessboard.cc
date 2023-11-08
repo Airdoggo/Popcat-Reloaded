@@ -61,7 +61,7 @@ namespace board
         blacks->friends = &_blacks;
         blacks->enemies = &_whites;
 
-        _white_turn = next_color[0] == 'w';
+        white_turn = next_color[0] == 'w';
 
         if (castling[0] != '-')
         {
@@ -246,7 +246,7 @@ namespace board
             }
         }
 
-        switch_turn();
+        white_turn ^= true;
     }
 
     Bitboard *Chessboard::get_board_at_position(Bitboard position, bool is_white)

@@ -48,7 +48,6 @@ namespace board
         void generate_legal_moves(std::vector<Move> &moves);
         void do_move(const Move &move);
         void do_move(const std::string &code);
-        void switch_turn();
 
         Bitboard *get_board_at_position(Bitboard position, bool is_white);
 
@@ -59,7 +58,7 @@ namespace board
 
         ColorBitboards *colors[2] = { &_white_bitboards, &_black_bitboards };
 
-        bool _white_turn = true;
+        bool white_turn = true;
 
     private:
         unsigned _turn = 0;
@@ -91,5 +90,3 @@ namespace board
         void reset_board();
     };
 } // namespace board
-
-#include "chessboard.hxx"
