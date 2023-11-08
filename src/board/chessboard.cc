@@ -103,12 +103,12 @@ namespace board
 
     void Chessboard::generate_legal_moves(std::vector<Move> &moves)
     {
-        generate_pawn_moves(moves);
-        generate_king_moves(moves);
+        generate_sliding_moves(moves, SlidingPieceType::QUEEN);
         generate_sliding_moves(moves, SlidingPieceType::ROOK);
         generate_sliding_moves(moves, SlidingPieceType::BISHOP);
-        generate_sliding_moves(moves, SlidingPieceType::QUEEN);
         generate_knight_moves(moves);
+        generate_pawn_moves(moves);
+        generate_king_moves(moves);
 
         // If the opponent broke a castling opportunity
         if (_offset_castling_break != MoveType::NONE)
