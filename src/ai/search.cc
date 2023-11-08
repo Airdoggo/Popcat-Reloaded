@@ -7,20 +7,20 @@ namespace ai
     static constexpr int MIN_SCORE = INT_MIN + 100;
 
 #ifdef COUNT
-    static int count = 0;
+    static int nb_inner = 0;
+    static int nb_leaves = 0;
 #endif
 
     static int evaluate_move(board::Chessboard *board, int depth, int alpha, int beta)
     {
-#ifdef COUNT
-        count++;
-#endif
-
         std::vector<board::Move> moves;
         board->generate_legal_moves(moves);
 
         if (moves.empty())
         {
+#ifdef COUNT
+            nb_inner++;
+#endif
             if (board->is_in_check()) // Mat
             {
                 return MIN_SCORE - depth;
@@ -38,10 +38,16 @@ namespace ai
 
             if (depth <= 1 && move.target_board == nullptr || depth <= -2)
             {
+#ifdef COUNT
+                nb_leaves++;
+#endif
                 eval = -evaluate(board);
             }
             else
             {
+#ifdef COUNT
+                nb_inner++;
+#endif
                 eval = -evaluate_move(board, depth - 1, -beta, -alpha);
             }
 
@@ -63,7 +69,8 @@ namespace ai
     std::string search(board::Chessboard *board, int depth)
     {
 #ifdef COUNT
-        count = 0;
+        nb_inner = 0;
+        nb_leaves = 0;
 #endif
 
         std::vector<board::Move> moves;
@@ -74,6 +81,10 @@ namespace ai
 
         for (const board::Move &move : moves)
         {
+#ifdef COUNT
+            nb_inner++;
+#endif
+
             board->do_move(move);
             board->switch_turn();
 
@@ -90,7 +101,8 @@ namespace ai
         }
 
 #ifdef COUNT
-        std::cout << "Total nodes searched: " << count << ", score: " << best_score << std::endl;
+        std::cout << "Total nodes searched: " << nb_inner + nb_leaves << " (inner: " << nb_inner
+                  << ", leaves: " << nb_leaves << ") | score: " << best_score << std::endl;
 #endif
 
         return best_move.to_string();
