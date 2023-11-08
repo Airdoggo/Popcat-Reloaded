@@ -16,7 +16,7 @@ namespace board
         while (_BitScanForward64(&index, knights))
         {
             Bitboard knight_position = 1ULL << index;
-            Bitboard moves_table = tables.knight[index] & movable;
+            Bitboard moves_table = tables::knight[index] & movable;
 
             while (_BitScanForward64(&index, moves_table))
             {

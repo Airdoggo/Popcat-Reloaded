@@ -14,7 +14,17 @@ namespace board
 
     Chessboard::Chessboard(const std::string &fen_string)
     {
+        tables::initialize();
         set_board_from_fen(fen_string);
+    }
+
+    Chessboard::~Chessboard()
+    {
+        for (int i = 0; i < 64; i++)
+        {
+            delete[] tables::rook_attack_table[i];
+            delete[] tables::bishop_attack_table[i];
+        }
     }
 
     void Chessboard::set_board_from_fen(const std::string &fen_string)

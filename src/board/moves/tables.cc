@@ -1,22 +1,10 @@
 #include "tables.hh"
 
 #include <iostream>
-namespace board
+namespace board::tables
 {
-    Tables::Tables()
-    {
-        generate_rook_table();
-        generate_bishop_table();
-    }
-
-    Tables::~Tables()
-    {
-        for (int i = 0; i < 64; i++)
-        {
-            delete[] rook_attack_table[i];
-            delete[] bishop_attack_table[i];
-        }
-    }
+    Bitboard *rook_attack_table[64];
+    Bitboard *bishop_attack_table[64];
 
     static Bitboard generate_blockers_from_index(unsigned index, Bitboard mask)
     {
@@ -75,7 +63,7 @@ namespace board
         return result;
     }
 
-    void Tables::generate_rook_table()
+    static void generate_rook_table()
     {
         for (int rook_index = 0; rook_index < 64; rook_index++)
         {
@@ -133,7 +121,7 @@ namespace board
         return result;
     }
 
-    void Tables::generate_bishop_table()
+    static void generate_bishop_table()
     {
         for (int bishop_index = 0; bishop_index < 64; bishop_index++)
         {
@@ -149,4 +137,10 @@ namespace board
             }
         }
     }
-} // namespace board
+
+    void initialize()
+    {
+        generate_rook_table();
+        generate_bishop_table();
+    }
+} // namespace board::tables

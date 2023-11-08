@@ -32,20 +32,20 @@ namespace board
 
             if (type & SlidingPieceType::ROOK)
             {
-                Bitboard masked_blockers = tables.rook_masks[index] & blockers;
-                Bitboard magic_number = tables.rook_magic_number[index];
-                Bitboard key = ((masked_blockers * magic_number) >> (64 - tables.rook_magic_bits[index]));
+                Bitboard masked_blockers = tables::rook_masks[index] & blockers;
+                Bitboard magic_number = tables::rook_magic_number[index];
+                Bitboard key = ((masked_blockers * magic_number) >> (64 - tables::rook_magic_bits[index]));
 
-                moves_table |= tables.rook_attack_table[index][key];
+                moves_table |= tables::rook_attack_table[index][key];
             }
 
             if (type & SlidingPieceType::BISHOP)
             {
-                Bitboard masked_blockers = tables.bishop_masks[index] & blockers;
-                Bitboard magic_number = tables.bishop_magic_number[index];
-                Bitboard key = ((masked_blockers * magic_number) >> (64 - tables.bishop_magic_bits[index]));
+                Bitboard masked_blockers = tables::bishop_masks[index] & blockers;
+                Bitboard magic_number = tables::bishop_magic_number[index];
+                Bitboard key = ((masked_blockers * magic_number) >> (64 - tables::bishop_magic_bits[index]));
 
-                moves_table |= tables.bishop_attack_table[index][key];
+                moves_table |= tables::bishop_attack_table[index][key];
             }
 
             moves_table &= movable;

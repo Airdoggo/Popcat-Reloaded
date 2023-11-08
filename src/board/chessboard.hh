@@ -39,6 +39,7 @@ namespace board
     public:
         Chessboard();
         Chessboard(const std::string &fen_string);
+        ~Chessboard();
 
         void set_board_from_fen(const std::string &fen_string);
 
@@ -53,8 +54,6 @@ namespace board
 
         bool validate_move(Bitboard *moving_piece, Bitboard *target, Bitboard move_start, Bitboard move_end);
         bool is_in_check();
-
-        Tables tables;
 
         ColorBitboards *colors[2] = { &_white_bitboards, &_black_bitboards };
 

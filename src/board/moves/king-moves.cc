@@ -18,7 +18,7 @@ namespace board
         Bitboard attack_board = get_attack_board();
         *friendly_pieces ^= *friendly_king;
 
-        Bitboard moves_table = tables.king[index] & movable & ~attack_board;
+        Bitboard moves_table = tables::king[index] & movable & ~attack_board;
         Bitboard castling = color->castling;
 
         MoveType type = MoveType::NONE;
