@@ -73,6 +73,21 @@ namespace ai
             late_delta += piece_table.end_table[end_index] - piece_table.end_table[start_index];
         }
 
+        if (move.type & board::MoveType::CASTLING)
+        {
+            unsigned long rook_start_index = _board.white_turn ? move.type & board::MoveType::CASTLING_QUEEN ? 0 : 7
+                : move.type & board::MoveType::CASTLING_QUEEN  ? 54
+                                                               : 63;
+            unsigned long rook_end_index = _board.white_turn  ? move.type & board::MoveType::CASTLING_QUEEN ? 3 : 5
+                : move.type & board::MoveType::CASTLING_QUEEN ? 57
+                                                              : 61;
+
+            const tables::PieceSquareTable &rook_table = _promotion_to_piece_square_table[_board.white_turn ? 1 : 5];
+
+            early_delta += rook_table.early_table[rook_end_index] - rook_table.early_table[rook_start_index];
+            late_delta += rook_table.end_table[rook_end_index] - rook_table.end_table[rook_start_index];
+        }
+
         if (move.target_board)
         {
             const tables::PieceSquareTable &enemy_table = _board_to_piece_square_table.at(move.target_board);
