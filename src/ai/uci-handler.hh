@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ai.hh"
 #include "chessboard.hh"
 
 namespace ai
@@ -14,7 +15,7 @@ namespace ai
         void handle_go_command(const std::vector<std::string> &command);
         void handle_ucinewgame_command();
 
-        board::Chessboard _board;
+        AI _ai;
 
         size_t _moves_offset = 0;
     };

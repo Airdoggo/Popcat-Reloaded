@@ -34,7 +34,8 @@ namespace board
             }
         }
 
-        Bitboard possible_en_passant_pawns = colors[white_turn ? 1 : 0]->pawns & (white_turn ? RANK4 : RANK5);
+        Bitboard possible_en_passant_pawns =
+            (white_turn ? black_bitboards.pawns : white_bitboards.pawns) & (white_turn ? RANK4 : RANK5);
 
         while (_BitScanForward64(&index, double_moves_bitboard))
         {
@@ -112,7 +113,7 @@ namespace board
 
     void Chessboard::generate_pawn_moves(std::vector<Move> &moves)
     {
-        ColorBitboards *color = white_turn ? colors[0] : colors[1];
+        ColorBitboards *color = white_turn ? &white_bitboards : &black_bitboards;
 
         Bitboard empty = ~(_whites | _blacks);
         Bitboard enemy_pieces = (*color->enemies) | _en_passant;

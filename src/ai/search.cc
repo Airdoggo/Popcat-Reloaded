@@ -1,27 +1,25 @@
 #include "ai.hh"
 
-#define COUNT 1
-
 namespace ai
 {
-    static constexpr int MIN_SCORE = INT_MIN + 100;
+    static constexpr const int MIN_SCORE = INT_MIN + 100;
 
 #ifdef COUNT
     static int nb_inner = 0;
     static int nb_leaves = 0;
 #endif
 
-    static int evaluate_move(board::Chessboard *board, int depth, int alpha, int beta)
+    int AI::evaluate_move(int depth, int alpha, int beta)
     {
         std::vector<board::Move> moves;
-        board->generate_legal_moves(moves);
+        _board.generate_legal_moves(moves);
 
         if (moves.empty())
         {
 #ifdef COUNT
             nb_inner++;
 #endif
-            if (board->is_in_check()) // Mat
+            if (_board.is_in_check()) // Mat
             {
                 return MIN_SCORE - depth;
             }
@@ -31,8 +29,9 @@ namespace ai
 
         for (const board::Move &move : moves)
         {
-            board->do_move(move);
-            board->white_turn ^= true;
+            update_evaluation(move, false);
+            _board.do_move(move);
+            _board.white_turn ^= true;
 
             int eval;
 
@@ -41,18 +40,19 @@ namespace ai
 #ifdef COUNT
                 nb_leaves++;
 #endif
-                eval = -evaluate(board);
+                eval = _board.white_turn ? -_tapered_evaluation : _tapered_evaluation;
             }
             else
             {
 #ifdef COUNT
                 nb_inner++;
 #endif
-                eval = -evaluate_move(board, depth - 1, -beta, -alpha);
+                eval = -evaluate_move(depth - 1, -beta, -alpha);
             }
 
-            board->white_turn ^= true;
-            board->do_move(move);
+            _board.white_turn ^= true;
+            _board.do_move(move);
+            update_evaluation(move, true);
 
             if (eval >= beta)
             {
@@ -60,13 +60,15 @@ namespace ai
             }
 
             if (eval > alpha)
+            {
                 alpha = eval;
+            }
         }
 
         return alpha;
     }
 
-    std::string search(board::Chessboard *board, int depth)
+    std::string AI::search(int depth)
     {
 #ifdef COUNT
         nb_inner = 0;
@@ -74,7 +76,7 @@ namespace ai
 #endif
 
         std::vector<board::Move> moves;
-        board->generate_legal_moves(moves);
+        _board.generate_legal_moves(moves);
 
         board::Move &best_move = moves.front();
         int best_score = MIN_SCORE;
@@ -85,10 +87,11 @@ namespace ai
             nb_inner++;
 #endif
 
-            board->do_move(move);
-            board->white_turn ^= true;
+            update_evaluation(move, false);
+            _board.do_move(move);
+            _board.white_turn ^= true;
 
-            int eval = -evaluate_move(board, depth, MIN_SCORE, -best_score);
+            int eval = -evaluate_move(depth, MIN_SCORE, -best_score);
 
             if (eval > best_score)
             {
@@ -96,8 +99,9 @@ namespace ai
                 best_move = move;
             }
 
-            board->white_turn ^= true;
-            board->do_move(move);
+            _board.white_turn ^= true;
+            _board.do_move(move);
+            update_evaluation(move, true);
         }
 
 #ifdef COUNT

@@ -1,5 +1,6 @@
 add_library(ai
     "uci-handler.cc"
+    "ai.cc"
     "search.cc"
     "evaluate.cc"
 )

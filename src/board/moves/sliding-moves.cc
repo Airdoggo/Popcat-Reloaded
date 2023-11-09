@@ -4,7 +4,7 @@ namespace board
 {
     void Chessboard::generate_sliding_moves(std::vector<Move> &moves, SlidingPieceType type)
     {
-        ColorBitboards *color = white_turn ? colors[0] : colors[1];
+        ColorBitboards *color = white_turn ? &white_bitboards : &black_bitboards;
         Bitboard *friendly_pieces;
         switch (type)
         {

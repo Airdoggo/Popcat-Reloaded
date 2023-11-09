@@ -5,7 +5,7 @@ namespace board
 {
     void Chessboard::generate_king_moves(std::vector<Move> &moves)
     {
-        ColorBitboards *color = white_turn ? colors[0] : colors[1];
+        ColorBitboards *color = white_turn ? &white_bitboards : &black_bitboards;
         Bitboard *friendly_king = &color->king;
         Bitboard movable = ~(*color->friends);
         Bitboard enemies = *color->enemies;

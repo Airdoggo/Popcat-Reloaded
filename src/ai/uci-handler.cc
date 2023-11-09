@@ -7,7 +7,7 @@
 
 namespace ai
 {
-    static constexpr char STARTPOS[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    static constexpr const char STARTPOS[] = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
     static std::vector<std::string> get_command()
     {
@@ -72,37 +72,33 @@ namespace ai
         if (_moves_offset == 0)
         {
             if (from_startpos)
-                _board.set_board_from_fen(STARTPOS);
+                _ai.set_board_position(STARTPOS);
             else
             {
                 std::string fen_string = command[2];
                 for (int i = 3; i < 8; i++)
                     fen_string += " " + command[i];
 
-                _board.set_board_from_fen(fen_string);
+                _ai.set_board_position(fen_string);
             }
         }
 
         for (size_t i = (from_startpos ? 3 : 9) + _moves_offset; i < command.size(); i++)
         {
-            _board.do_move(command[i]);
+            _ai.do_move(command[i]);
             _moves_offset++;
         }
     }
 
     void UCIHandler::handle_go_command(const std::vector<std::string> &command)
     {
-        std::vector<board::Move> moves;
-        _board.generate_legal_moves(moves);
-
-        std::string result = search(&_board, 5);
+        std::string result = _ai.search(5);
 
         std::cout << "bestmove " << result << std::endl;
     }
 
     void UCIHandler::handle_ucinewgame_command()
     {
-        _board.set_board_from_fen(STARTPOS);
         _moves_offset = 0;
     }
 } // namespace ai

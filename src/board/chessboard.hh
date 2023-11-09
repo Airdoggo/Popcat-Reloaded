@@ -48,14 +48,14 @@ namespace board
 
         void generate_legal_moves(std::vector<Move> &moves);
         void do_move(const Move &move);
-        void do_move(const std::string &code);
 
         Bitboard *get_board_at_position(Bitboard position, bool is_white);
 
         bool validate_move(Bitboard *moving_piece, Bitboard *target, Bitboard move_start, Bitboard move_end);
         bool is_in_check();
 
-        ColorBitboards *colors[2] = { &_white_bitboards, &_black_bitboards };
+        ColorBitboards white_bitboards;
+        ColorBitboards black_bitboards;
 
         bool white_turn = true;
 
@@ -65,9 +65,6 @@ namespace board
 
         Bitboard _whites = 0;
         Bitboard _blacks = 0;
-
-        ColorBitboards _white_bitboards;
-        ColorBitboards _black_bitboards;
 
         Bitboard _en_passant = 0;
 
